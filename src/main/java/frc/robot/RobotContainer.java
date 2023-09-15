@@ -8,6 +8,8 @@ import frc.robot.Constants.OperatorConstants;
 import java.util.HashMap;
 import java.util.List;
 
+import javax.print.attribute.standard.MediaSize.NA;
+
 import com.pathplanner.lib.*;
 import com.pathplanner.lib.auto.SwerveAutoBuilder;
 import com.pathplanner.lib.auto.PIDConstants;
@@ -17,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 import frc.robot.subsystems.DriveTrain;
+import frc.robot.subsystems.NavX;
 
 import frc.robot.commands.JoystickDrive;
 
@@ -33,7 +36,9 @@ import edu.wpi.first.wpilibj.XboxController;
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private static HashMap<String, Command> eventMap = new HashMap<>();
-  private final DriveTrain drive = new DriveTrain();
+  private final NavX navx = new NavX();
+  private final DriveTrain drive = new DriveTrain(navx);
+
   public static Joystick joystick = new Joystick(Constants.OperatorConstants.kDriverJoystickPort);
 
   private static XboxController m_driverController =

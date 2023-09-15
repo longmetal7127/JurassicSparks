@@ -25,7 +25,9 @@ public class NavX extends SubsystemBase {
     public void resetYaw() {
         ahrs.zeroYaw();
     }
-
+    public double getRate() {
+        return ahrs.getRate();
+    }
     public Rotation2d getRotation2d() {
         return ahrs.getRotation2d();
     }
