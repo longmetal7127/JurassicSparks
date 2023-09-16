@@ -45,7 +45,7 @@ public class SwerveModule {
     m_drivingSparkMax.restoreFactoryDefaults();
     m_turningSparkMax.restoreFactoryDefaults();
 
-    // Setup encoders and PID controllers for the driving and turning SPARKS MAX.
+    // Setup encoders and PID controllers for the driving and turning SPARK MAXs.
     m_drivingEncoder = m_drivingSparkMax.getEncoder();
     m_turningEncoder = m_turningSparkMax.getAbsoluteEncoder(Type.kDutyCycle);
     m_drivingPIDController = m_drivingSparkMax.getPIDController();
