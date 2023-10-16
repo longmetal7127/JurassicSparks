@@ -10,10 +10,9 @@ import java.util.List;
 
 import javax.print.attribute.standard.MediaSize.NA;
 
-import com.pathplanner.lib.*;
-import com.pathplanner.lib.auto.SwerveAutoBuilder;
-import com.pathplanner.lib.auto.PIDConstants;
-import com.pathplanner.lib.server.PathPlannerServer;
+import com.fasterxml.jackson.core.sym.Name;
+import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -37,7 +36,6 @@ import edu.wpi.first.wpilibj.XboxController;
 
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  private static HashMap<String, Command> eventMap = new HashMap<>();
   private final NavX navx = new NavX();
   private final DriveTrain drive = new DriveTrain(navx);
 
@@ -48,20 +46,10 @@ public class RobotContainer {
 
   private final JoystickDrive joystickDrive = new JoystickDrive(drive);
 
-  private SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(
-        drive::getPose, // Pose2d supplier
-        drive::resetOdometry, // Pose2d consumer, used to reset odometry at the beginning of auto
-        Constants.DriveConstants.kDriveKinematics, // SwerveDriveKinematics
-        new PIDConstants(5.0, 0.0, 0.0), // PID constants to correct for translation error (used to create the X and Y PID controllers)
-        new PIDConstants(0.5, 0.0, 0.0), // PID constants to correct for rotation error (used to create the rotation controller)
-        drive::setModuleStates, // Module states consumer used to output to the drive subsystem
-        eventMap,
-        true, // Should the path be automatically mirrored depending on alliance color. Optional, defaults to true
-        drive // The drive subsystem. Used to properly set the requirements of path following commands
-    );
     
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+
     // Configure the trigger bindings
     configureBindings();
     drive.setDefaultCommand(joystickDrive);
@@ -95,12 +83,7 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    PathConstraints pc = new PathConstraints(3, 4);
-    List<PathPlannerTrajectory> pathGroup = null;
-
-    pathGroup = PathPlanner.loadPathGroup("auto1", pc);
-    return autoBuilder.fullAuto(pathGroup);
- 
+      return new PathPlannerAuto("New Auto"); 
     // An example command will be run in autonomous
    // return Autos.exampleAuto(m_exampleSubsystem);
   }

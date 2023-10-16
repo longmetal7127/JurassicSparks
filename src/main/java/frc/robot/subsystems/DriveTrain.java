@@ -1,7 +1,9 @@
-
-
 package frc.robot.subsystems;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
+import com.pathplanner.lib.util.PIDConstants;
+import com.pathplanner.lib.util.ReplanningConfig;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -13,6 +15,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.util.WPIUtilJNI;
 import edu.wpi.first.wpilibj.ADIS16470_IMU;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
 import frc.utils.SwerveUtils;
 
@@ -76,6 +79,43 @@ public class DriveTrain extends SubsystemBase {
                     m_rearRight.getPosition(),
                 }
             );
+        AutoBuilder.configureHolonomic(
+            this::getPose, // Pose2d supplier
+            this::resetOdometry, // Pose2d consumer, used to reset odometry at the beginning of auto
+            this::getChassisSpeeds,
+            this::setChassisSpeeds,
+            new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live in your Constants class
+                new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
+                new PIDConstants(5.0, 0.0, 0.0), // Rotation PID constants
+                4.5, // Max module speed, in m/s
+                0.4, // Drive base radius in meters. Distance from robot center to furthest module.
+                new ReplanningConfig() // Default path replanning config. See the API for the options here
+            ),
+            this // The drive subsystem. Used to properly set the requirements of path following commands
+        );
+    }
+
+    public ChassisSpeeds getChassisSpeeds() {
+        return DriveConstants.kDriveKinematics.toChassisSpeeds(
+            m_frontLeft.getState(),
+            m_frontLeft.getState(),
+            m_frontLeft.getState(),
+            m_frontLeft.getState()
+        );
+    }
+
+    public void setChassisSpeeds(ChassisSpeeds speeds) {
+        var swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(
+            speeds
+        );
+        SwerveDriveKinematics.desaturateWheelSpeeds(
+            swerveModuleStates,
+            DriveConstants.kMaxSpeedMetersPerSecond
+        );
+        m_frontLeft.setDesiredState(swerveModuleStates[0]);
+        m_frontRight.setDesiredState(swerveModuleStates[1]);
+        m_rearLeft.setDesiredState(swerveModuleStates[2]);
+        m_rearRight.setDesiredState(swerveModuleStates[3]);
     }
 
     @Override
@@ -139,7 +179,7 @@ public class DriveTrain extends SubsystemBase {
         double xSpeedCommanded;
         double ySpeedCommanded;
 
-        if (rateLimit) {
+        if (rateLimit) { // ramp speed up and down using SlewRateLimiter
             // Convert XY to polar for rate limiting
             double inputTranslationDir = Math.atan2(ySpeed, xSpeed);
             double inputTranslationMag = Math.sqrt(
