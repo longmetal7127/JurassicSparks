@@ -3,15 +3,15 @@ package frc.robot.subsystems;
 import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.SPI;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class NavX extends SubsystemBase {
+public class NavX {
 
     public final AHRS ahrs = new AHRS(SPI.Port.kMXP);
 
     public NavX() {
         ahrs.reset();
-        ahrs.calibrate();
+
+        // ahrs.calibrate();
     }
 
     /*
@@ -42,10 +42,7 @@ public class NavX extends SubsystemBase {
         return ahrs.getRate();
     }
 
-    /*
-     * Deprecated: Use .ahrs.getRotation2d()
-     */
     public Rotation2d getRotation2d() {
-        return ahrs.getRotation2d();
+        return  Rotation2d.fromDegrees(ahrs.getAngle());
     }
 }
