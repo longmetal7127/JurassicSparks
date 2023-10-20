@@ -8,9 +8,7 @@ import frc.robot.Constants.OperatorConstants;
 import java.util.HashMap;
 import java.util.List;
 
-import javax.print.attribute.standard.MediaSize.NA;
 
-import com.fasterxml.jackson.core.sym.Name;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import edu.wpi.first.wpilibj2.command.Command;
