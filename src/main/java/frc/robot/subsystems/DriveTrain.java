@@ -16,7 +16,6 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.util.WPIUtilJNI;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
 
 import frc.utils.SwerveUtils;
@@ -97,6 +96,11 @@ public class DriveTrain extends SubsystemBase {
         );
     }
 
+    /**
+     * Returns the current ChassisSpeeds
+     * 
+     * @return the current chassis speeds
+     */
     public ChassisSpeeds getChassisSpeeds() {
         return DriveConstants.kDriveKinematics.toChassisSpeeds(
             m_frontLeft.getState(),
@@ -105,7 +109,11 @@ public class DriveTrain extends SubsystemBase {
             m_frontLeft.getState()
         );
     }
-
+    /**
+     * Sets each module to the respective chassis speed
+     * 
+     * @param speeds Desired ChassisSpeeds object
+     */
     public void setChassisSpeeds(ChassisSpeeds speeds) {
         var swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(
             speeds
@@ -265,14 +273,7 @@ public class DriveTrain extends SubsystemBase {
                     rotDelivered
                 )
         );
-        SwerveDriveKinematics.desaturateWheelSpeeds(
-            swerveModuleStates,
-            DriveConstants.kMaxSpeedMetersPerSecond
-        );
-        m_frontLeft.setDesiredState(swerveModuleStates[0]);
-        m_frontRight.setDesiredState(swerveModuleStates[1]);
-        m_rearLeft.setDesiredState(swerveModuleStates[2]);
-        m_rearRight.setDesiredState(swerveModuleStates[3]);
+        setModuleStates(swerveModuleStates);
     }
 
     /**
@@ -319,7 +320,7 @@ public class DriveTrain extends SubsystemBase {
 
     /** Zeroes the heading of the robot. */
     public void zeroHeading() {
-        m_gyro.resetYaw();
+        m_gyro.ahrs.zeroYaw();
     }
 
     /**
