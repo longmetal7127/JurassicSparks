@@ -42,7 +42,11 @@ public class NavX {
         return ahrs.getRate();
     }
 
+    /*
+     * Deprecated: Use .ahrs.getRotation2d()
+     */
+
     public Rotation2d getRotation2d() {
-        return  Rotation2d.fromDegrees(ahrs.getAngle());
+        return  ahrs.getRotation2d();
     }
 }
