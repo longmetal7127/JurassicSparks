@@ -4,30 +4,24 @@
 
 package frc.robot;
 
-import frc.robot.Constants.OperatorConstants;
-import java.util.HashMap;
-import java.util.List;
-
-import com.fasterxml.jackson.core.sym.Name;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-
+import frc.robot.Constants.OperatorConstants;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.NavX;
-
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.util.sendable.Sendable;
-import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import monologue.Logged;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -38,45 +32,61 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  * the robot (including
  * subsystems, commands, and trigger mappings) should be declared here.
  */
+public class RobotContainer implements Logged {
 
-public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final NavX navx = new NavX();
   private final DriveTrain drive = new DriveTrain(navx);
 
-  public static Joystick joystick = new Joystick(Constants.OperatorConstants.kDriverJoystickPort);
+  public static Joystick joystick = new Joystick(
+    Constants.OperatorConstants.kDriverJoystickPort
+  );
 
-  private static XboxController m_driverController = new XboxController(OperatorConstants.kDriverControllerPort);
-
+  private static XboxController m_driverController = new XboxController(
+    OperatorConstants.kDriverControllerPort
+  );
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   private SendableChooser autoChooser;
-  public RobotContainer() {
 
+  public RobotContainer() {
     // Configure the trigger bindings
     configureBindings();
-    drive.setDefaultCommand(new RunCommand(() -> {
-      double multiplier = (((joystick.getThrottle() * -1) + 1) / 2); // turbo mode
-      double z = RobotContainer.joystick.getZ() / 1.5;
+    drive.setDefaultCommand(
+      new RunCommand(
+        () -> {
+          double multiplier = (((joystick.getThrottle() * -1) + 1) / 2); // turbo mode
+          double z = RobotContainer.joystick.getZ() / 1.5;
 
-      drive.drive(
-          -MathUtil.applyDeadband(joystick.getY() * multiplier, OperatorConstants.kDriveDeadband),
-          MathUtil.applyDeadband(joystick.getX() * multiplier, OperatorConstants.kDriveDeadband),
-          MathUtil.applyDeadband(z * multiplier, OperatorConstants.kDriveDeadband),
-          true,
-          true);
-
-    }, drive));
-      autoChooser = AutoBuilder.buildAutoChooser();
+          drive.drive(
+            -MathUtil.applyDeadband(
+              joystick.getY() * multiplier,
+              OperatorConstants.kDriveDeadband
+            ),
+            MathUtil.applyDeadband(
+              joystick.getX() * multiplier,
+              OperatorConstants.kDriveDeadband
+            ),
+            MathUtil.applyDeadband(
+              z * multiplier,
+              OperatorConstants.kDriveDeadband
+            ),
+            true,
+            true
+          );
+        },
+        drive
+      )
+    );
+    autoChooser = AutoBuilder.buildAutoChooser();
 
     // Another option that allows you to specify the default auto by its name
     // autoChooser = AutoBuilder.buildAutoChooser("My Default Auto");
 
     SmartDashboard.putData("Auto Chooser", autoChooser);
-    NamedCommands.registerCommand("wheelsX",Commands.run(() -> drive.setX()));
-
+    NamedCommands.registerCommand("wheelsX", Commands.run(() -> drive.setX()));
   }
 
   /**
@@ -101,9 +111,12 @@ public class RobotContainer {
     // Schedule `exampleMethodCommand` when the Xbox controller's B button is
     // pressed,
     // cancelling on release.
-    JoystickButton wheelsX = new JoystickButton(m_driverController, XboxController.Button.kY.value);
-    wheelsX.onTrue(Commands.run(() -> drive.setX()));
+    JoystickButton wheelsX = new JoystickButton(
+      m_driverController,
+      XboxController.Button.kY.value
+    );
 
+    wheelsX.onTrue(Commands.run(() -> drive.setX()));
   }
 
   /**
