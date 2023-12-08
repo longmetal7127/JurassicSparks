@@ -36,7 +36,7 @@ public class RobotContainer implements Logged {
 
   // The robot's subsystems and commands are defined here...
   private final NavX navx = new NavX();
-  private final DriveTrain drive = new DriveTrain(navx);
+  private DriveTrain drive;
 
   public static Joystick joystick = new Joystick(
     Constants.OperatorConstants.kDriverJoystickPort
@@ -51,29 +51,30 @@ public class RobotContainer implements Logged {
    */
   private SendableChooser autoChooser;
 
-  public RobotContainer() {
+  public RobotContainer()  {
+    drive = new DriveTrain(navx);
     // Configure the trigger bindings
     configureBindings();
     drive.setDefaultCommand(
       new RunCommand(
         () -> {
           double multiplier = (((joystick.getThrottle() * -1) + 1) / 2); // turbo mode
-          double z = RobotContainer.joystick.getZ() / 1.5;
+          double z = RobotContainer.joystick.getZ() * -.8;
 
           drive.drive(
-            -MathUtil.applyDeadband(
-              joystick.getY() * multiplier,
+            MathUtil.applyDeadband(
+              joystick.getY() * -multiplier,
               OperatorConstants.kDriveDeadband
             ),
             MathUtil.applyDeadband(
-              joystick.getX() * multiplier,
+              joystick.getX() * -multiplier,
               OperatorConstants.kDriveDeadband
             ),
             MathUtil.applyDeadband(
-              z * multiplier,
+              z ,
               OperatorConstants.kDriveDeadband
             ),
-            true,
+            false,
             true
           );
         },

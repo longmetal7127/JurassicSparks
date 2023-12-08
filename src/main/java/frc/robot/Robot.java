@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 import monologue.Monologue;
+import monologue.Monologue.LogNT;
 import monologue.Logged;
 
 import edu.wpi.first.wpilibj.DataLogManager;
@@ -34,8 +35,10 @@ public class Robot extends TimedRobot implements Logged {
   public void robotInit() {
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
-    m_robotContainer = new RobotContainer();
+        m_robotContainer = new RobotContainer();
+
     Monologue.setupLogging(this, "/Robot");
+    
     DataLogManager.start();
     
     // Record both DS control and joystick data
@@ -43,7 +46,7 @@ public class Robot extends TimedRobot implements Logged {
 
 
   }
-
+  @LogNT private int x = 0;
   /**
    * This function is called every 20 ms, no matter the mode. Use this for items like diagnostics
    * that you want ran during disabled, autonomous, teleoperated and test.

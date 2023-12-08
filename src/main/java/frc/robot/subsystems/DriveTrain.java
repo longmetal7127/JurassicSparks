@@ -86,8 +86,8 @@ public class DriveTrain extends SubsystemBase implements Logged {
       this::setChassisSpeeds,
       new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live in
         // your Constants class
-        new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
-        new PIDConstants(5.0, 0.0, 0.0), // Rotation PID constants
+        new PIDConstants(0.0, 0.0, 0.0), // Translation PID constants
+        new PIDConstants(0.0, 0.0, 0.0), // Rotation PID constants
         DriveConstants.kMaxSpeedMetersPerSecond, // Max module speed, in m/s
         DriveConstants.kDriveBaseRadius, // Drive base radius in meters. Distance from robot center to
         // furthest module.
@@ -104,12 +104,12 @@ public class DriveTrain extends SubsystemBase implements Logged {
    *
    * @return the current chassis speeds
    */
-  @LogBoth public ChassisSpeeds getChassisSpeeds() {
+ public ChassisSpeeds getChassisSpeeds() {
     return DriveConstants.kDriveKinematics.toChassisSpeeds(
       m_frontLeft.getState(),
-      m_frontLeft.getState(),
-      m_frontLeft.getState(),
-      m_frontLeft.getState()
+      m_frontRight.getState(),
+      m_rearLeft.getState(),
+      m_rearRight.getState()
     );
   }
 
@@ -289,10 +289,10 @@ public class DriveTrain extends SubsystemBase implements Logged {
    * @param desiredStates The desired SwerveModule states.
    */
   public void setModuleStates(SwerveModuleState[] desiredStates) {
-    SwerveDriveKinematics.desaturateWheelSpeeds(
+    /*SwerveDriveKinematics.desaturateWheelSpeeds(
       desiredStates,
       DriveConstants.kMaxSpeedMetersPerSecond
-    );
+    );*/
     m_frontLeft.setDesiredState(desiredStates[0]);
     m_frontRight.setDesiredState(desiredStates[1]);
     m_rearLeft.setDesiredState(desiredStates[2]);
