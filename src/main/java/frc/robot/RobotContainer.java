@@ -74,7 +74,7 @@ public class RobotContainer implements Logged {
               z ,
               OperatorConstants.kDriveDeadband
             ),
-            false,
+            true,
             true
           );
         },
