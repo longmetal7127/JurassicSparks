@@ -78,8 +78,8 @@ public class DriveTrain extends SubsystemBase implements Logged {
         this::setChassisSpeeds,
         new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live in
             // your Constants class
-            new PIDConstants(0.0, 0.0, 0.0), // Translation PID constants
-            new PIDConstants(0.0, 0.0, 0.0), // Rotation PID constants
+            new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
+            new PIDConstants(5.0, 0.0, 0.0), // Rotation PID constants
             DriveConstants.kMaxSpeedMetersPerSecond, // Max module speed, in m/s
             DriveConstants.kDriveBaseRadius, // Drive base radius in meters. Distance from robot center to
             // furthest module.
@@ -125,6 +125,7 @@ public class DriveTrain extends SubsystemBase implements Logged {
             m_rearLeft.getPosition(),
             m_rearRight.getPosition(),
         });
+        System.out.println(m_odometry.getPoseMeters().getX());
   }
 
   /**
@@ -132,7 +133,7 @@ public class DriveTrain extends SubsystemBase implements Logged {
    *
    * @return The pose.
    */
-  @LogBoth
+ // @LogBoth
   public Pose2d getPose() {
     return m_odometry.getPoseMeters();
   }
