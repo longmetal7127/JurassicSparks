@@ -1,18 +1,29 @@
 package frc.robot.subsystems;
 
+import org.photonvision.PhotonCamera;
+import org.photonvision.PhotonPoseEstimator;
+import org.photonvision.PhotonPoseEstimator.PoseStrategy;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
+
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.util.WPIUtilJNI;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriveConstants;
 import frc.utils.SwerveUtils;
@@ -58,6 +69,9 @@ public class DriveTrain extends SubsystemBase implements Logged {
 
   // Odometry class for tracking robot pose
   SwerveDriveOdometry m_odometry;
+  PhotonCamera cam;
+    public static final AprilTagFieldLayout kTagLayout =
+                AprilTagFields.kDefaultField.loadAprilTagLayoutField();
 
   /** Creates a new DriveSubsystem. */
   public DriveTrain(NavX navX) {
@@ -71,6 +85,13 @@ public class DriveTrain extends SubsystemBase implements Logged {
             m_rearLeft.getPosition(),
             m_rearRight.getPosition(),
         });
+    cam = new PhotonCamera("Arducam_OV2311_USB_Camera");
+    Transform3d robotToCam = new Transform3d(new Translation3d(0.5, 0.0, 0.5), new Rotation3d(0, 0, 0)); 
+
+    // Construct PhotonPoseEstimator
+    PhotonPoseEstimator photonPoseEstimator = new PhotonPoseEstimator(kTagLayout,
+        PoseStrategy.CLOSEST_TO_REFERENCE_POSE, cam, robotToCam);
+
     AutoBuilder.configureHolonomic(
         this::getPose, // Pose2d supplier
         this::resetOdometry, // Pose2d consumer, used to reset odometry at the beginning of auto
@@ -86,6 +107,19 @@ public class DriveTrain extends SubsystemBase implements Logged {
             new ReplanningConfig() // Default path replanning config. See the API for the options
         // here
         ),
+        () -> {
+          // Boolean supplier that controls when the path will be mirrored for the red
+          // alliance
+          // This will flip the path being followed to the red side of the field.
+          // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+
+          var alliance = DriverStation.getAlliance();
+          if (alliance.isPresent()) {
+            return alliance.get() == DriverStation.Alliance.Red;
+          }
+          return false;
+        },
+
         this // The drive subsystem. Used to properly set the requirements of path following
     // commands
     );
@@ -125,7 +159,7 @@ public class DriveTrain extends SubsystemBase implements Logged {
             m_rearLeft.getPosition(),
             m_rearRight.getPosition(),
         });
-        System.out.println(m_odometry.getPoseMeters().getX());
+    System.out.println(m_odometry.getPoseMeters().getX());
   }
 
   /**
@@ -133,7 +167,7 @@ public class DriveTrain extends SubsystemBase implements Logged {
    *
    * @return The pose.
    */
- // @LogBoth
+  // @LogBoth
   public Pose2d getPose() {
     return m_odometry.getPoseMeters();
   }
