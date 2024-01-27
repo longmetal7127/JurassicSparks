@@ -1,8 +1,12 @@
 package frc.robot.subsystems;
 
+import java.util.Optional;
+
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
+import org.photonvision.targeting.PhotonPipelineResult;
+import org.photonvision.EstimatedRobotPose;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
@@ -11,6 +15,9 @@ import com.pathplanner.lib.util.ReplanningConfig;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -22,13 +29,16 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.util.WPIUtilJNI;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriveConstants;
 import frc.utils.SwerveUtils;
 import monologue.Logged;
-import monologue.Monologue.LogBoth;
+import monologue.Annotations.Log;
+import monologue.Annotations.Log.*;
 
 public class DriveTrain extends SubsystemBase implements Logged {
 
@@ -70,8 +80,13 @@ public class DriveTrain extends SubsystemBase implements Logged {
   // Odometry class for tracking robot pose
   SwerveDriveOdometry m_odometry;
   PhotonCamera cam;
-    public static final AprilTagFieldLayout kTagLayout =
-                AprilTagFields.kDefaultField.loadAprilTagLayoutField();
+  public static final AprilTagFieldLayout kTagLayout = AprilTagFields.kDefaultField.loadAprilTagLayoutField();
+  public static final Matrix<N3, N1> kSingleTagStdDevs = VecBuilder.fill(4, 4, 8);
+  public static final Matrix<N3, N1> kMultiTagStdDevs = VecBuilder.fill(0.5, 0.5, 1);
+  private final SwerveDrivePoseEstimator poseEstimator;
+  private PhotonPoseEstimator photonPoseEstimator;
+
+  private double lastEstTimestamp = 0;
 
   /** Creates a new DriveSubsystem. */
   public DriveTrain(NavX navX) {
@@ -86,12 +101,28 @@ public class DriveTrain extends SubsystemBase implements Logged {
             m_rearRight.getPosition(),
         });
     cam = new PhotonCamera("Arducam_OV2311_USB_Camera");
-    Transform3d robotToCam = new Transform3d(new Translation3d(0.5, 0.0, 0.5), new Rotation3d(0, 0, 0)); 
+    Transform3d robotToCam = new Transform3d(new Translation3d(0.5, 0.0, 0.5), new Rotation3d(0, 0, 0));
+
+    var stateStdDevs = VecBuilder.fill(0.1, 0.1, 0.1);
+    var visionStdDevs = VecBuilder.fill(1, 1, 1);
+
+    poseEstimator = new SwerveDrivePoseEstimator(
+        DriveConstants.kDriveKinematics,
+        navX.ahrs.getRotation2d(),
+        new SwerveModulePosition[] {
+            m_frontLeft.getPosition(),
+            m_frontRight.getPosition(),
+            m_rearLeft.getPosition(),
+            m_rearRight.getPosition(),
+        },
+        new Pose2d(),
+        stateStdDevs,
+        visionStdDevs);
 
     // Construct PhotonPoseEstimator
-    PhotonPoseEstimator photonPoseEstimator = new PhotonPoseEstimator(kTagLayout,
-        PoseStrategy.CLOSEST_TO_REFERENCE_POSE, cam, robotToCam);
-
+    photonPoseEstimator = new PhotonPoseEstimator(kTagLayout,
+        PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, cam, robotToCam);
+    photonPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
     AutoBuilder.configureHolonomic(
         this::getPose, // Pose2d supplier
         this::resetOdometry, // Pose2d consumer, used to reset odometry at the beginning of auto
@@ -151,7 +182,7 @@ public class DriveTrain extends SubsystemBase implements Logged {
   @Override
   public void periodic() {
     // Update the odometry in the periodic block
-    m_odometry.update(
+    poseEstimator.update(
         m_gyro.ahrs.getRotation2d(),
         new SwerveModulePosition[] {
             m_frontLeft.getPosition(),
@@ -159,7 +190,17 @@ public class DriveTrain extends SubsystemBase implements Logged {
             m_rearLeft.getPosition(),
             m_rearRight.getPosition(),
         });
-    System.out.println(m_odometry.getPoseMeters().getX());
+    var visionEst = getEstimatedGlobalPose();
+    visionEst.ifPresent(
+        est -> {
+          var estPose = est.estimatedPose.toPose2d();
+          // Change our trust in the measurement based on the tags we can see
+          var estStdDevs = getEstimationStdDevs(estPose);
+
+          addVisionMeasurement(
+              est.estimatedPose.toPose2d(), est.timestampSeconds, estStdDevs);
+        });
+
   }
 
   /**
@@ -167,9 +208,9 @@ public class DriveTrain extends SubsystemBase implements Logged {
    *
    * @return The pose.
    */
-  // @LogBoth
+  @Log.NT
   public Pose2d getPose() {
-    return m_odometry.getPoseMeters();
+    return poseEstimator.getEstimatedPosition();
   }
 
   /**
@@ -178,7 +219,7 @@ public class DriveTrain extends SubsystemBase implements Logged {
    * @param pose The pose to which to set the odometry.
    */
   public void resetOdometry(Pose2d pose) {
-    m_odometry.resetPosition(
+    poseEstimator.resetPosition(
         m_gyro.ahrs.getRotation2d(),
         new SwerveModulePosition[] {
             m_frontLeft.getPosition(),
@@ -335,4 +376,67 @@ public class DriveTrain extends SubsystemBase implements Logged {
   public double getTurnRate() {
     return (m_gyro.ahrs.getRate() * (DriveConstants.kGyroReversed ? -1.0 : 1.0));
   }
+
+  public Optional<EstimatedRobotPose> getEstimatedGlobalPose() {
+    var visionEst = photonPoseEstimator.update();
+    double latestTimestamp = cam.getLatestResult().getTimestampSeconds();
+    boolean newResult = Math.abs(latestTimestamp - lastEstTimestamp) > 1e-5;
+    if (newResult)
+      lastEstTimestamp = latestTimestamp;
+    return visionEst;
+  }
+
+  /**
+   * The standard deviations of the estimated pose from
+   * {@link #getEstimatedGlobalPose()}, for use
+   * with {@link edu.wpi.first.math.estimator.SwerveDrivePoseEstimator
+   * SwerveDrivePoseEstimator}.
+   * This should only be used when there are targets visible.
+   *
+   * @param estimatedPose The estimated pose to guess standard deviations for.
+   */
+  public PhotonPipelineResult getLatestResult() {
+    return cam.getLatestResult();
+  }
+
+  public Matrix<N3, N1> getEstimationStdDevs(Pose2d estimatedPose) {
+    var estStdDevs = kSingleTagStdDevs;
+    var targets = getLatestResult().getTargets();
+    int numTags = 0;
+    double avgDist = 0;
+    for (var tgt : targets) {
+      var tagPose = photonPoseEstimator.getFieldTags().getTagPose(tgt.getFiducialId());
+      if (tagPose.isEmpty())
+        continue;
+      numTags++;
+      avgDist += tagPose.get().toPose2d().getTranslation().getDistance(estimatedPose.getTranslation());
+    }
+    if (numTags == 0)
+      return estStdDevs;
+    avgDist /= numTags;
+    // Decrease std devs if multiple targets are visible
+    if (numTags > 1)
+      estStdDevs = kMultiTagStdDevs;
+    // Increase std devs based on (average) distance
+    if (numTags == 1 && avgDist > 4)
+      estStdDevs = VecBuilder.fill(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE);
+    else
+      estStdDevs = estStdDevs.times(1 + (avgDist * avgDist / 30));
+
+    return estStdDevs;
+  }
+
+  public void addVisionMeasurement(Pose2d visionMeasurement, double timestampSeconds) {
+    poseEstimator.addVisionMeasurement(visionMeasurement, timestampSeconds);
+  }
+
+  /**
+   * See
+   * {@link SwerveDrivePoseEstimator#addVisionMeasurement(Pose2d, double, Matrix)}.
+   */
+  public void addVisionMeasurement(
+      Pose2d visionMeasurement, double timestampSeconds, Matrix<N3, N1> stdDevs) {
+    poseEstimator.addVisionMeasurement(visionMeasurement, timestampSeconds, stdDevs);
+  }
+
 }
