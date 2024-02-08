@@ -23,7 +23,6 @@ public class ShooterTrain extends SubsystemBase {
         return this.runOnce(() -> {
             shooterMotorLeft.set(speed);
             shooterMotorRight.set(speed);
-
         });
     }
 }

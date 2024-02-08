@@ -119,11 +119,17 @@ public class RobotContainer implements Logged {
       m_driverController,
       XboxController.Button.kY.value
     );
+
     Trigger restartRoborio = joystick.trigger();
     restartRoborio.onTrue(new InstantCommand(()-> {
       navx.ahrs.zeroYaw();
 
     }));
+
+    Trigger moveClimb = new JoystickButton(m_driverController, XboxController.Button.kB.value);
+    moveClimb.toggleOnTrue(new InstantCommand() {
+        //something happen here
+    });
 
     wheelsX.onTrue(Commands.run(() -> drive.setX()));
   }
