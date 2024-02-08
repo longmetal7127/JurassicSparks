@@ -3,7 +3,6 @@ package frc.robot.commands;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.wpilibj2.command.Command;
-//import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.ArmTrain;
 import frc.robot.subsystems.DriveTrain;
 /*
@@ -27,12 +26,12 @@ public class SpeakerAim extends Command {
     private Pose3d axelpos;
 
     //tuning stuff for distances, positions, constants, or global vars
-    private double arml = 2.16279528f;
-    private double pointaxeldis = 0.6700001f;
-    private double bumph = 0.7468586f;
+    private double arml = 2.16279528;
+    private double pointaxeldis = 0.6700001;
+    private double bumph = 0.7468586;
     private double shootrot = 59;
     private double gravity = 32f;
-    private double angle = 0;
+    private double angle = -1;
     private double velocity = 50;
     private double xzdiff;
     private double thetapos;
@@ -48,18 +47,6 @@ public class SpeakerAim extends Command {
         m_arm = arm;
         m_rotatebody = rotatebody;
 
-        //finding necessary body rotation
-        yaw = 180 - (Math.toDegrees(Math.atan((body.getY() - speakerpos.getY()) / (body.getX() - speakerpos.getX()))));
-        double opyaw = yaw - 180;
-        if (m_rotatebody) {
-            m_drive.setYaw(
-                opyaw
-            );
-        }
-
-        //not sure if i need this but its here anyway
-        body.rotateBy(new Rotation3d(0,0,opyaw));
-
         //setting up positional vectors
         speakerpos = new Pose3d(
             8.77375, //this stuff needs to be tuned
@@ -73,6 +60,20 @@ public class SpeakerAim extends Command {
             0.2270997,
             new Rotation3d()
         );
+
+        //finding necessary body rotation
+        yaw = 180 - (Math.toDegrees(Math.atan((body.getY() - speakerpos.getY()) / (body.getX() - speakerpos.getX()))));
+        double opyaw = yaw - 180;
+        if (m_rotatebody) {
+            m_drive.setYaw(
+                opyaw
+            );
+        }
+
+        //not sure if i need this but its here anyway
+        body.rotateBy(new Rotation3d(0,0,opyaw));
+
+        //setting up axel pos
         axelpos = new Pose3d(
             (body.getX() + (Math.cos(Math.toRadians(yaw)) * pointaxeldis)),
             (body.getY() + (Math.sin(Math.toRadians(yaw)) * pointaxeldis)),
@@ -80,7 +81,6 @@ public class SpeakerAim extends Command {
             new Rotation3d()
         );
         shootpos = axelpos;
-
     }
 
     @Override
