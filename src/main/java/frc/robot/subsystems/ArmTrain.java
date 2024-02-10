@@ -8,17 +8,10 @@ import monologue.Logged;
 
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.RelativeEncoder;
+import com.revrobotics.SparkAbsoluteEncoder;
 import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkBase.ControlType;
-import com.revrobotics.CANSparkLowLevel.MotorType;
-import com.revrobotics.SparkLimitSwitch.Type;
-import com.revrobotics.SparkAbsoluteEncoder;
-import edu.wpi.first.networktables.DoublePublisher;
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
 import frc.robot.Constants.ArmConstants;
 import static edu.wpi.first.units.Units.*;
 

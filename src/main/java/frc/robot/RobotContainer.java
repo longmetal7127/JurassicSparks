@@ -6,10 +6,10 @@ package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-import com.pathplanner.lib.auto.AutoBuilder.TriFunction;
+//import com.pathplanner.lib.auto.AutoBuilder.TriFunction;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.wpilibj.Joystick;
+//import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;

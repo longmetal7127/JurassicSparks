@@ -5,7 +5,7 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
+//import frc.robot.Constants;
 import frc.robot.Constants.ShooterConstants;
 
 public class ShooterTrain extends SubsystemBase {
@@ -23,7 +23,6 @@ public class ShooterTrain extends SubsystemBase {
         return this.runOnce(() -> {
             shooterMotorLeft.set(speed);
             shooterMotorRight.set(speed);
-
         });
     }
 }
