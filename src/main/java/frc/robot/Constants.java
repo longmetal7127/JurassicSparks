@@ -57,17 +57,36 @@ public final class Constants {
   }
 
   public static final class ArmConstants {
-    public static final int kLeftMotorCanId = 8;
-    public static final int kRightMotorCanId = 9;
+    public static final int kLeftMotorCanId = 13;
+    public static final int kRightMotorCanId = 14;
 
-    public static final double kTurningP = 1;
+    public static final double kTurningP = 0.02;
     public static final double kTurningI = 0;
-    public static final double kTurningD = 0;
+    public static final double kTurningD = 0.035898;
     public static final double kTurningFF = 0;
     public static final double kTurningMinOutput = -1;
     public static final double kTurningMaxOutput = 1;
 
+        public static final double kTurningEncoderPositionFactor = 360; // rotations to degrees
+
+
   }
+
+    public static final class ClimbConstants {
+    public static final int kLeftMotorCanId = 15;
+    public static final int kRightMotorCanId = 16;
+
+    public static final double kTurningP = 0.02;
+    public static final double kTurningI = 0;
+    public static final double kTurningD = 0.035898;
+    public static final double kTurningFF = 0;
+    public static final double kTurningMinOutput = -1;
+    public static final double kTurningMaxOutput = 1;
+
+
+
+  }
+
 
   public static final class IntakeConstants {
     public static final int kIntakeMotorCanId = 10;

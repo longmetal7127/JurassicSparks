@@ -25,7 +25,7 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.NavX;
 import monologue.Logged;
-
+import frc.robot.subsystems.ArmTrain;
 /**
  * This class is where the bulk of the robot should be declared. Since
  * Command-based is a
@@ -45,10 +45,10 @@ public class RobotContainer implements Logged {
     Constants.OperatorConstants.kDriverJoystickPort
   );
 
-  private static XboxController m_driverController = new XboxController(
+  private static CommandXboxController m_driverController = new CommandXboxController(
     OperatorConstants.kDriverControllerPort
   );
-
+private final ArmTrain armTrain = new ArmTrain();
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
@@ -115,17 +115,33 @@ public class RobotContainer implements Logged {
     // Schedule `exampleMethodCommand` when the Xbox controller's B button is
     // pressed,
     // cancelling on release.
-    JoystickButton wheelsX = new JoystickButton(
+   /*  JoystickButton wheelsX = new JoystickButton(
       m_driverController,
-      XboxController.Button.kY.value
-    );
+      CommandXboxController.Button.kY.value
+    );*/
     Trigger restartRoborio = joystick.trigger();
     restartRoborio.onTrue(new InstantCommand(()-> {
       navx.ahrs.zeroYaw();
 
     }));
+    Trigger moveArm = m_driverController.a();
+    moveArm.onTrue(armTrain.incrementPosition());
+        Trigger moveArmD = m_driverController.b();
+    moveArmD.onTrue(armTrain.decrementPosition());
+    /*Trigger a = m_driverController.a();
+    a.onTrue(armTrain.quasistaticForward());
+        Trigger b = m_driverController.b();
+    b.onTrue(armTrain.quasistaticBackward());
+            Trigger x = m_driverController.x();
+    x.onTrue(armTrain.dynamicForward());
+                Trigger y = m_driverController.y();
+    y.onTrue(armTrain.dynamicBackward());*/
 
-    wheelsX.onTrue(Commands.run(() -> drive.setX()));
+
+
+
+
+   // wheelsX.onTrue(Commands.run(() -> drive.setX()));
   }
 
   /**

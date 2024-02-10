@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import monologue.Monologue;
 import monologue.Annotations.Log;
 import monologue.Logged;
+import org.littletonrobotics.urcl.URCL;
 
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -45,6 +46,8 @@ public class Robot extends TimedRobot implements Logged {
     Monologue.setupMonologue(this, "/Robot", false, false);
 
     DataLogManager.start();
+    URCL.start();
+
 
     // Record both DS control and joystick data
     DriverStation.startDataLog(DataLogManager.getLog());

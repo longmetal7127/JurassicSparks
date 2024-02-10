@@ -20,12 +20,13 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.ArmConstants;
+import frc.robot.Constants.ClimbConstants;
 import static edu.wpi.first.units.Units.*;
 
-public class ArmTrain extends SubsystemBase implements Logged {
-    public CANSparkMax left = new CANSparkMax(ArmConstants.kLeftMotorCanId,
+public class ClimbTrain extends SubsystemBase implements Logged {
+    public CANSparkMax left = new CANSparkMax(ClimbConstants.kLeftMotorCanId,
             com.revrobotics.CANSparkLowLevel.MotorType.kBrushless);
-    public CANSparkMax right = new CANSparkMax(ArmConstants.kRightMotorCanId,
+    public CANSparkMax right = new CANSparkMax(ClimbConstants.kRightMotorCanId,
             com.revrobotics.CANSparkLowLevel.MotorType.kBrushless);
     private AbsoluteEncoder m_turningEncoder;
     private SparkPIDController m_leftPID;
@@ -33,20 +34,17 @@ public class ArmTrain extends SubsystemBase implements Logged {
     private double pos = 0;
     private SysIdRoutine sysIdRoutine;
 
-    public ArmTrain() {
-        left.setSmartCurrentLimit(20);
-        right.setSmartCurrentLimit(20);
-        m_turningEncoder = left.getAbsoluteEncoder(SparkAbsoluteEncoder.Type.kDutyCycle);
+    public ClimbTrain() {
+        left.setSmartCurrentLimit(40);
+        right.setSmartCurrentLimit(40);
         m_leftPID = left.getPIDController();
-        right.follow(left, true);
-        m_turningEncoder.setPositionConversionFactor(ArmConstants.kTurningEncoderPositionFactor);
+        right.follow(left, false);
 
-        m_leftPID.setFeedbackDevice(m_turningEncoder);
 
-        m_leftPID.setP(ArmConstants.kTurningP);
-        m_leftPID.setI(ArmConstants.kTurningI);
-        m_leftPID.setD(ArmConstants.kTurningD);
-        m_leftPID.setFF(ArmConstants.kTurningFF);
+        m_leftPID.setP(ClimbConstants.kTurningP);
+        m_leftPID.setI(ClimbConstants.kTurningI);
+        m_leftPID.setD(ClimbConstants.kTurningD);
+        m_leftPID.setFF(ClimbConstants.kTurningFF);
         m_leftPID.setOutputRange(-0.5, 0.5);
         sysIdRoutine = new SysIdRoutine(
                 new SysIdRoutine.Config(),
@@ -82,29 +80,7 @@ public class ArmTrain extends SubsystemBase implements Logged {
         });
     }
 
-    public Command quasistaticForward() {
-        return sysIdRoutine.quasistatic(Direction.kForward).until(()-> {
-            return m_turningEncoder.getPosition() >= 70;
-        });
-    }
-
-    public Command quasistaticBackward() {
-        return sysIdRoutine.quasistatic(Direction.kReverse).until(()-> {
-            return m_turningEncoder.getPosition() <= 10;
-        });
-    }
-
-    public Command dynamicForward() {
-        return sysIdRoutine.dynamic(Direction.kForward).until(()-> {
-            return m_turningEncoder.getPosition() >= 70;
-        });
-    }
-
-    public Command dynamicBackward() {
-        return sysIdRoutine.dynamic(Direction.kReverse).until(()-> {
-            return m_turningEncoder.getPosition() <= 10;
-        });
-    }
+ 
  
 
 }
