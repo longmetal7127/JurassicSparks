@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import org.ejml.dense.block.MatrixOps_DDRB;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 //import com.pathplanner.lib.auto.AutoBuilder.TriFunction;
@@ -23,9 +25,12 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.subsystems.DriveTrain;
+import frc.robot.subsystems.IntakeTrain;
 import frc.robot.subsystems.NavX;
+import frc.robot.subsystems.ShooterTrain;
 import monologue.Logged;
 import frc.robot.subsystems.ArmTrain;
+import frc.robot.subsystems.ClimbTrain;
 /**
  * This class is where the bulk of the robot should be declared. Since
  * Command-based is a
@@ -49,6 +54,9 @@ public class RobotContainer implements Logged {
     OperatorConstants.kDriverControllerPort
   );
 private final ArmTrain armTrain = new ArmTrain();
+private final IntakeTrain intakeTrain = new IntakeTrain();
+private final ShooterTrain shooterTrain = new ShooterTrain();
+
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
@@ -136,7 +144,13 @@ private final ArmTrain armTrain = new ArmTrain();
     x.onTrue(armTrain.dynamicForward());
                 Trigger y = m_driverController.y();
     y.onTrue(armTrain.dynamicBackward());*/
+Trigger X = m_driverController.x();
+X.whileTrue(intakeTrain.speed(-0.6));
+X.onFalse(intakeTrain.speed(0));
 
+Trigger Y = m_driverController.y();
+Y.whileTrue(shooterTrain.setSpeed(-0.6));
+Y.onFalse(shooterTrain.setSpeed(0));
 
 
 

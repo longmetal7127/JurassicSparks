@@ -27,8 +27,8 @@ public class ArmTrain extends SubsystemBase implements Logged {
     private SysIdRoutine sysIdRoutine;
 
     public ArmTrain() {
-        left.setSmartCurrentLimit(20);
-        right.setSmartCurrentLimit(20);
+        left.setSmartCurrentLimit(30);
+        right.setSmartCurrentLimit(30);
         m_turningEncoder = left.getAbsoluteEncoder(SparkAbsoluteEncoder.Type.kDutyCycle);
         m_leftPID = left.getPIDController();
         right.follow(left, true);
@@ -40,7 +40,7 @@ public class ArmTrain extends SubsystemBase implements Logged {
         m_leftPID.setI(ArmConstants.kTurningI);
         m_leftPID.setD(ArmConstants.kTurningD);
         m_leftPID.setFF(ArmConstants.kTurningFF);
-        m_leftPID.setOutputRange(-0.5, 0.5);
+        m_leftPID.setOutputRange(-1, 1);
         sysIdRoutine = new SysIdRoutine(
                 new SysIdRoutine.Config(),
                 new SysIdRoutine.Mechanism(

@@ -15,8 +15,8 @@ public class ShooterTrain extends SubsystemBase {
             MotorType.kBrushless);
 
     public ShooterTrain() {
-        shooterMotorLeft.set(ShooterConstants.kSpeed); 
-        shooterMotorRight.set(ShooterConstants.kSpeed);
+       // shooterMotorLeft.set(ShooterConstants.kSpeed); 
+        //shooterMotorRight.set(ShooterConstants.kSpeed);
     }
 
     public Command setSpeed(double speed) {

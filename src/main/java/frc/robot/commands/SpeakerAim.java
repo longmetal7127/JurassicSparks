@@ -128,9 +128,9 @@ public class SpeakerAim extends Command {
 
         //set the angle of the arm at the end of the loop
         if (angle != -1 && loop >= repetitions) {
-            m_arm.setAngle(
-                angle
-            );
+           // m_arm.setAngle(
+           //     angle
+            //);
         }
 
         //increment time
