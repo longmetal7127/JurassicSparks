@@ -12,7 +12,7 @@ public class IntakeTrain extends SubsystemBase {
     private CANSparkMax intakeMotors = new CANSparkMax(IntakeConstants.kIntakeMotorCanId, MotorType.kBrushless);
 
     public IntakeTrain() {
-        intakeMotors.set(IntakeConstants.kSpeed);
+       // intakeMotors.set(IntakeConstants.kSpeed);
     }
 
     public void setSpeed(double speed) {

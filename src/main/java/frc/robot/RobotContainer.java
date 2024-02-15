@@ -151,6 +151,17 @@ X.onFalse(intakeTrain.speed(0));
 Trigger Y = m_driverController.y();
 Y.whileTrue(shooterTrain.setSpeed(-0.6));
 Y.onFalse(shooterTrain.setSpeed(0));
+Trigger dpad = m_driverController.povLeft();
+dpad.whileTrue(shooterTrain.setSpeed(0.2));
+dpad.onFalse(shooterTrain.setSpeed(0));
+
+Trigger r = m_driverController.povRight();
+r.onTrue(armTrain.setPosition(11));
+Trigger l = m_driverController.povUp();
+l.onTrue(armTrain.setPosition(1));
+Trigger d = m_driverController.povDown();
+d.onTrue(armTrain.setPosition(105));
+
 
 
 

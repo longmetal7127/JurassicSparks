@@ -5,12 +5,15 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import monologue.Logged;
+import monologue.Annotations.Log;
 
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkAbsoluteEncoder;
 import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkBase.ControlType;
+import com.revrobotics.CANSparkBase.SoftLimitDirection;
+
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ArmConstants;
 import static edu.wpi.first.units.Units.*;
@@ -23,16 +26,25 @@ public class ArmTrain extends SubsystemBase implements Logged {
     private AbsoluteEncoder m_turningEncoder;
     private SparkPIDController m_leftPID;
 
+    @Log.NT
     private double pos = 0;
     private SysIdRoutine sysIdRoutine;
+    private double[] positions = { 11 };
 
     public ArmTrain() {
+        left.restoreFactoryDefaults();
+
         left.setSmartCurrentLimit(30);
         right.setSmartCurrentLimit(30);
+        left.setSoftLimit(SoftLimitDirection.kForward, 120);
+        left.setSoftLimit(SoftLimitDirection.kReverse, 1);
         m_turningEncoder = left.getAbsoluteEncoder(SparkAbsoluteEncoder.Type.kDutyCycle);
+        m_turningEncoder.setInverted(true);
         m_leftPID = left.getPIDController();
         right.follow(left, true);
         m_turningEncoder.setPositionConversionFactor(ArmConstants.kTurningEncoderPositionFactor);
+
+        m_turningEncoder.setVelocityConversionFactor(ArmConstants.kTurningEncoderPositionFactor);
 
         m_leftPID.setFeedbackDevice(m_turningEncoder);
 
@@ -47,7 +59,8 @@ public class ArmTrain extends SubsystemBase implements Logged {
                         (voltage) -> left.setVoltage(voltage.in(Volts)),
                         null, // No log consumer, since data is recorded by URCL
                         this));
-
+        m_leftPID.setPositionPIDWrappingEnabled(false);
+        // m_leftPID.setPositionPIDWrappingMaxInput(120);
     }
 
     public Command setPosition(double pos) {
@@ -63,41 +76,40 @@ public class ArmTrain extends SubsystemBase implements Logged {
 
     public Command incrementPosition() {
         return this.runOnce(() -> {
-            m_leftPID.setReference(this.pos + 10, ControlType.kPosition);
-            this.pos += 10;
+            m_leftPID.setReference(this.pos + 1, ControlType.kPosition);
+            this.pos += 1;
         });
     }
 
     public Command decrementPosition() {
         return this.runOnce(() -> {
-            m_leftPID.setReference(this.pos - 5, ControlType.kPosition);
-            this.pos -= 5;
+            m_leftPID.setReference(this.pos - 1, ControlType.kPosition);
+            this.pos -= 1;
         });
     }
 
     public Command quasistaticForward() {
-        return sysIdRoutine.quasistatic(Direction.kForward).until(()-> {
+        return sysIdRoutine.quasistatic(Direction.kForward).until(() -> {
             return m_turningEncoder.getPosition() >= 70;
         });
     }
 
     public Command quasistaticBackward() {
-        return sysIdRoutine.quasistatic(Direction.kReverse).until(()-> {
+        return sysIdRoutine.quasistatic(Direction.kReverse).until(() -> {
             return m_turningEncoder.getPosition() <= 10;
         });
     }
 
     public Command dynamicForward() {
-        return sysIdRoutine.dynamic(Direction.kForward).until(()-> {
+        return sysIdRoutine.dynamic(Direction.kForward).until(() -> {
             return m_turningEncoder.getPosition() >= 70;
         });
     }
 
     public Command dynamicBackward() {
-        return sysIdRoutine.dynamic(Direction.kReverse).until(()-> {
+        return sysIdRoutine.dynamic(Direction.kReverse).until(() -> {
             return m_turningEncoder.getPosition() <= 10;
         });
     }
- 
 
 }
