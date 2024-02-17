@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.SpeakerAim;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.IntakeTrain;
 import frc.robot.subsystems.NavX;
@@ -31,6 +32,7 @@ import frc.robot.subsystems.ShooterTrain;
 import monologue.Logged;
 import frc.robot.subsystems.ArmTrain;
 import frc.robot.subsystems.ClimbTrain;
+
 /**
  * This class is where the bulk of the robot should be declared. Since
  * Command-based is a
@@ -47,51 +49,43 @@ public class RobotContainer implements Logged {
   private DriveTrain drive;
 
   public static CommandJoystick joystick = new CommandJoystick(
-    Constants.OperatorConstants.kDriverJoystickPort
-  );
+      Constants.OperatorConstants.kDriverJoystickPort);
 
   private static CommandXboxController m_driverController = new CommandXboxController(
-    OperatorConstants.kDriverControllerPort
-  );
-private final ArmTrain armTrain = new ArmTrain();
-private final IntakeTrain intakeTrain = new IntakeTrain();
-private final ShooterTrain shooterTrain = new ShooterTrain();
+      OperatorConstants.kDriverControllerPort);
+  private final ArmTrain armTrain = new ArmTrain();
+  private final IntakeTrain intakeTrain = new IntakeTrain();
+  private final ShooterTrain shooterTrain = new ShooterTrain();
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   private SendableChooser autoChooser;
 
-  public RobotContainer()  {
+  public RobotContainer() {
     drive = new DriveTrain(navx);
     // Configure the trigger bindings
     configureBindings();
     drive.setDefaultCommand(
-      new RunCommand(
-        () -> {
-          double multiplier = (((joystick.getThrottle() * -1) + 1) / 2); // turbo mode
-          double z = RobotContainer.joystick.getZ() * -.8;
+        new RunCommand(
+            () -> {
+              double multiplier = (((joystick.getThrottle() * -1) + 1) / 2); // turbo mode
+              double z = RobotContainer.joystick.getZ() * -.8;
 
-          drive.drive(
-            MathUtil.applyDeadband(
-              joystick.getY() * -multiplier,
-              OperatorConstants.kDriveDeadband
-            ),
-            MathUtil.applyDeadband(
-              joystick.getX() * -multiplier,
-              OperatorConstants.kDriveDeadband
-            ),
-            MathUtil.applyDeadband(
-              z ,
-              OperatorConstants.kDriveDeadband
-            ),
-            true,
-            true
-          );
-        },
-        drive
-      )
-    );
+              drive.drive(
+                  MathUtil.applyDeadband(
+                      joystick.getY() * -multiplier,
+                      OperatorConstants.kDriveDeadband),
+                  MathUtil.applyDeadband(
+                      joystick.getX() * -multiplier,
+                      OperatorConstants.kDriveDeadband),
+                  MathUtil.applyDeadband(
+                      z,
+                      OperatorConstants.kDriveDeadband),
+                  true,
+                  true);
+            },
+            drive));
     autoChooser = AutoBuilder.buildAutoChooser();
 
     // Another option that allows you to specify the default auto by its name
@@ -115,6 +109,10 @@ private final ShooterTrain shooterTrain = new ShooterTrain();
    * {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
    * joysticks}.
    */
+  private Command getSpekAim() {
+    return new SpeakerAim(drive, armTrain, false);
+  }
+
   private void configureBindings() {
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
     // new Trigger(m_exampleSubsystem::exampleCondition)
@@ -123,50 +121,50 @@ private final ShooterTrain shooterTrain = new ShooterTrain();
     // Schedule `exampleMethodCommand` when the Xbox controller's B button is
     // pressed,
     // cancelling on release.
-   /*  JoystickButton wheelsX = new JoystickButton(
-      m_driverController,
-      CommandXboxController.Button.kY.value
-    );*/
+    /*
+     
     Trigger restartRoborio = joystick.trigger();
-    restartRoborio.onTrue(new InstantCommand(()-> {
+    restartRoborio.onTrue(new InstantCommand(() -> {
       navx.ahrs.zeroYaw();
 
     }));
+    */
     Trigger moveArm = m_driverController.a();
     moveArm.onTrue(armTrain.incrementPosition());
-        Trigger moveArmD = m_driverController.b();
+    Trigger moveArmD = m_driverController.b();
     moveArmD.onTrue(armTrain.decrementPosition());
-    /*Trigger a = m_driverController.a();
-    a.onTrue(armTrain.quasistaticForward());
-        Trigger b = m_driverController.b();
-    b.onTrue(armTrain.quasistaticBackward());
-            Trigger x = m_driverController.x();
-    x.onTrue(armTrain.dynamicForward());
-                Trigger y = m_driverController.y();
-    y.onTrue(armTrain.dynamicBackward());*/
-Trigger X = m_driverController.x();
-X.whileTrue(intakeTrain.speed(-0.6));
-X.onFalse(intakeTrain.speed(0));
+    
+     /*  Trigger a = m_driverController.a();
+      a.onTrue(shooterTrain.quasistaticForward());
+      Trigger b = m_driverController.b();
+      b.onTrue(shooterTrain.quasistaticBackward());
+      Trigger x = m_driverController.x();
+      x.onTrue(shooterTrain.dynamicForward());
+      Trigger y = m_driverController.y();
+      y.onTrue(shooterTrain.dynamicBackward());*/
+     
+    Trigger X = m_driverController.x();
+    X.whileTrue(intakeTrain.speed(-0.6));
+    X.onFalse(intakeTrain.speed(0));
 
-Trigger Y = m_driverController.y();
-Y.whileTrue(shooterTrain.setSpeed(-0.6));
-Y.onFalse(shooterTrain.setSpeed(0));
-Trigger dpad = m_driverController.povLeft();
-dpad.whileTrue(shooterTrain.setSpeed(0.2));
-dpad.onFalse(shooterTrain.setSpeed(0));
+    Trigger Y = m_driverController.y();
+    Y.whileTrue(shooterTrain.setSpeed(-3500));
+    // Y.whileTrue(shooterTrain.setSpeed(-0.6));
+    Y.onFalse(shooterTrain.setSpeed(0));
+    Trigger dpad = m_driverController.povLeft();
+    dpad.whileTrue(shooterTrain.setSpeed(200));
+    dpad.onFalse(shooterTrain.setSpeed(0));
 
-Trigger r = m_driverController.povRight();
-r.onTrue(armTrain.setPosition(11));
-Trigger l = m_driverController.povUp();
-l.onTrue(armTrain.setPosition(1));
-Trigger d = m_driverController.povDown();
-d.onTrue(armTrain.setPosition(105));
+    Trigger r = m_driverController.povRight();
+    r.onTrue(armTrain.setPosition(175 + 11));
+    Trigger l = m_driverController.povUp();
+    l.onTrue(armTrain.setPosition(175));
+    Trigger d = m_driverController.povDown();
+    d.onTrue(armTrain.setPosition(175 + 105));
+    Trigger bump = m_driverController.leftBumper();
+    bump.onTrue(getSpekAim());
 
-
-
-
-
-   // wheelsX.onTrue(Commands.run(() -> drive.setX()));
+    // wheelsX.onTrue(Commands.run(() -> drive.setX()));
   }
 
   /**

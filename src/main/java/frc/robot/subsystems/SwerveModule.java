@@ -9,13 +9,16 @@ import com.revrobotics.SparkPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics.SwerveDriveWheelStates;
 import frc.robot.Constants.ModuleConstants;
+import monologue.Logged;
+import monologue.Annotations.Log;
 
 /**
  * this is not a subsystem and is not scheduled like other files in this folder it's here for
  * conviencence
  */
-public class SwerveModule {
+public class SwerveModule implements Logged{
 
   private final CANSparkMax m_drivingSpark;
   private final CANSparkMax m_turningSpark;
@@ -27,7 +30,8 @@ public class SwerveModule {
   private final SparkPIDController m_turningPIDController;
 
   private double m_chassisAngularOffset = 0;
-  private SwerveModuleState m_desiredState = new SwerveModuleState(
+  
+  @Log.NT private SwerveModuleState m_desiredState = new SwerveModuleState(
     0.0,
     new Rotation2d()
   );
