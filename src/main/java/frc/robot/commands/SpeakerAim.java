@@ -91,7 +91,23 @@ public class SpeakerAim extends Command implements Logged {
 
     @Override
     public void execute() {
+        double yaw = -(Math.toDegrees(Math.atan((speakerpos.getY() - body.getY()) / (speakerpos.getX() - body.getX()))));
+
+        Pose3d axelpos = new Pose3d(
+            (body.getX() + (Math.cos(Math.toRadians(yaw)) * pointaxeldis)),
+            (body.getY() + (Math.sin(Math.toRadians(yaw)) * pointaxeldis)),
+            bumph,
+            new Rotation3d()
+        );
+
+        double sidedis = Math.sqrt(Math.pow(speakerpos.getX()-axelpos.getX(),2)+Math.pow(speakerpos.getZ()-axelpos.getZ(),2)+Math.pow(speakerpos.getY()-axelpos.getY(),2));
+        double siderot = Math.toDegrees(Math.atan(Math.sqrt(Math.pow(speakerpos.getX() - axelpos.getX(), 2) + Math.pow(speakerpos.getY() - axelpos.getY(), 2)) / (speakerpos.getY() - axelpos.getY())));
+
+        double angle = 90 - (180 - (Math.toDegrees(Math.asin((Math.sin(Math.toRadians(shootrot) * arml) / sidedis)) - shootrot - siderot)));
         
+        m_arm.setAngle(175 + Math.min(Math.max(angle, 0),90));
+        
+        loop++;
     }
 
     @Override
@@ -103,7 +119,8 @@ public class SpeakerAim extends Command implements Logged {
         return (loop >= repetitions);
     }
 }
-/*
+
+/* GRAVITY CODE
  * float yaw = -(Mathf.Rad2Deg * Mathf.Atan((speakerpos.position.z - body.transform.position.z) / (speakerpos.position.x - body.transform.position.x)));
         body.Rotate(0, 0, yaw);
 
