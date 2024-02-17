@@ -90,13 +90,13 @@ public final class Constants {
 
   public static final class IntakeConstants {
     public static final int kIntakeMotorCanId = 10;
-    public static final double kSpeed = 1;
+    public static final double kSpeed = -0.6;
   }
 
   public static final class ShooterConstants {
     public static final int kShooterLeftMotorCanId = 11;
     public static final int kShooterRightMotorCanId = 12;
-    public static final double kSpeed = 1;
+    public static final double kSpeed = 0.6;
 
   }
 
