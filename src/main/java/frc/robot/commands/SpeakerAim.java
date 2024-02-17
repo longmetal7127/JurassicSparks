@@ -146,3 +146,33 @@ public class SpeakerAim extends Command {
         return (loop >= repetitions);
     }
 }
+/*
+ * float yaw = -(Mathf.Rad2Deg * Mathf.Atan((speakerpos.position.z - body.transform.position.z) / (speakerpos.position.x - body.transform.position.x)));
+        body.Rotate(0, 0, yaw);
+
+        Vector3 axelpos = new(
+            (body.position.x + (Mathf.Cos(Mathf.Deg2Rad * yaw) * pointaxeldis)),
+            bumph,
+            (body.position.z + (Mathf.Sin(Mathf.Deg2Rad * yaw) * pointaxeldis))
+        );
+        axelpos = transform.position;
+
+        float sidedis = Vector3.Distance(axelpos, speakerpos.position);
+        float siderot = Mathf.Rad2Deg * Mathf.Atan(Mathf.Sqrt(Mathf.Pow(speakerpos.position.x - axelpos.x, 2) + Mathf.Pow(speakerpos.position.z - axelpos.z, 2)) / (speakerpos.position.y - axelpos.y));
+
+        float angle = 90 - (180 - (Mathf.Rad2Deg * Mathf.Asin((Mathf.Sin(Mathf.Deg2Rad * shootrot) * arml) / sidedis)) - shootrot - siderot);
+        float shootflrlength = (Mathf.Cos(Mathf.Deg2Rad * angle) * arml);
+
+        transform.Rotate(0, 0, angle);
+        Vector3 shootpos = new(
+            (axelpos.x - Mathf.Cos(Mathf.Deg2Rad * yaw) * shootflrlength),
+            (axelpos.y + Mathf.Sin(Mathf.Deg2Rad * angle) * arml),
+            (axelpos.z + Mathf.Sin(Mathf.Deg2Rad * yaw) * shootflrlength)
+        );
+        Object newnote = Instantiate(note, shootpos, Quaternion.Euler(-90, 90 + yaw, 0));
+        //float vectflrlenght = Mathf.Cos(angle) * newvel;
+        //print(newvel);
+        newnote.GetComponent<Transform>().Rotate(angle + 180 - shootrot, 0, 0);
+        //newnote.GetComponent<move>().setVector(new(Mathf.Cos(Mathf.Deg2Rad * yaw) * vectflrlenght, Mathf.Sin(Mathf.Deg2Rad * angle) * newvel, Mathf.Sin(Mathf.Deg2Rad * yaw) * vectflrlenght));
+        newnote.GetComponent<Transform>().Rotate(0, 0, 0);
+ */
