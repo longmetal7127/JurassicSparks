@@ -101,7 +101,7 @@ public class DriveTrain extends SubsystemBase implements Logged {
             m_rearRight.getPosition(),
         });
     cam = new PhotonCamera("Arducam_OV2311_USB_Camera");
-    Transform3d robotToCam = new Transform3d(new Translation3d(0.5, 0.0, 0.5), new Rotation3d(0, 0, 0));
+    Transform3d robotToCam = new Transform3d(new Translation3d(-0.36, 0.165, 0.158), new Rotation3d(0, Math.toRadians(149), Math.toRadians(180)));
 
     var stateStdDevs = VecBuilder.fill(0.1, 0.1, 0.1);
     var visionStdDevs = VecBuilder.fill(1, 1, 1);

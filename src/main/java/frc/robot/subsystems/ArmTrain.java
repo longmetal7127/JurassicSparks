@@ -27,9 +27,9 @@ public class ArmTrain extends SubsystemBase implements Logged {
     private SparkPIDController m_leftPID;
 
     @Log.NT
-    private double pos = 0;
+    private double pos = 175;
     private SysIdRoutine sysIdRoutine;
-    private double[] positions = { 11 };
+    private double[] positions = { 13 };
 
     public ArmTrain() {
         left.restoreFactoryDefaults();
