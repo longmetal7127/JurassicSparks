@@ -70,6 +70,11 @@ public class ArmTrain extends SubsystemBase implements Logged {
         });
     }
 
+    public void setAngle(double pos) {
+        m_leftPID.setReference(pos, ControlType.kPosition);
+        this.pos = pos;
+    }
+
     public void runVolts(double volts) {
         m_leftPID.setReference(volts, ControlType.kVoltage);
     }
