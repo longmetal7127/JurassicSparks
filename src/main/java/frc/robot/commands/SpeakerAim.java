@@ -32,20 +32,23 @@ public class SpeakerAim extends Command implements Logged {
     private Pose3d shootpos;
     private Pose3d axelpos;
 
-    // tuning stuff for distances, positions, constants, or global vars
+    //tuning stuff for distances, positions, constants, or global vars
     private double arml = 2.16279528;
     private double pointaxeldis = 0.6666667;
-    private double bumph = 0.7468586;
+    private double bumph = 0.958744;
     private double shootrot = 59;
-    private double gravity = 32f;
     private double angle = -1;
+    private double yaw;
+    private double axelspeakerdistz;
+
+    //gravity vars (unneeded rn)
+    private double gravity = 32f;
     private double velocity = 50;
     private double xzdiff;
     private double thetapos;
     private double thetaneg;
     private double shootflrlength;
     private double ydiff;
-    private double yaw;
 
     public SpeakerAim(DriveTrain drive, ArmTrain arm, boolean rotatebody) {
         // setting up drive/arm trains
@@ -53,22 +56,20 @@ public class SpeakerAim extends Command implements Logged {
         m_drive = drive;
         m_arm = arm;
         m_rotatebody = rotatebody;
-
-        // setting up positional vectors
     }
 
     @Override
     public void initialize() {
         speakerpos = new Pose3d(
-                53.425351,
-                18.16625,
-                5.65,
-                new Rotation3d());
+            53.425351,
+            18.16625,
+            5.65,
+            new Rotation3d());
         body = new Pose3d(
-                Feet.convertFrom(m_drive.getPose().getX(), Meters),
-                Feet.convertFrom(m_drive.getPose().getY(), Meters),
-                0.2270997,
-                new Rotation3d());
+            Feet.convertFrom(m_drive.getPose().getX(), Meters),
+            Feet.convertFrom(m_drive.getPose().getY(), Meters),
+            0,
+            new Rotation3d());
 
         // finding necessary body rotation
         yaw = 180 - (Math.toDegrees(Math.atan(speakerpos.getY()-body.getY())) / (speakerpos.getX()-body.getX()));
@@ -82,19 +83,20 @@ public class SpeakerAim extends Command implements Logged {
 
         // setting up axel pos
         axelpos = new Pose3d(
-                (body.getX() - (Math.cos(Math.toRadians(yaw)) * pointaxeldis)),
-                (body.getY() - (Math.sin(Math.toRadians(yaw)) * pointaxeldis)),
-                (bumph + body.getZ()),
-                new Rotation3d());
+            (body.getX() - (Math.cos(Math.toRadians(yaw)) * pointaxeldis)),
+            (body.getY() - (Math.sin(Math.toRadians(yaw)) * pointaxeldis)),
+            (bumph),
+            new Rotation3d());
         shootpos = axelpos;
+        axelspeakerdistz = speakerpos.getZ()-bumph;
     }
 
     @Override
     public void execute() {
-        double sidedis = Math.sqrt(Math.pow(speakerpos.getX()-axelpos.getX(),2)+Math.pow(speakerpos.getZ()-axelpos.getZ(),2)+Math.pow(speakerpos.getY()-axelpos.getY(),2));
-        double siderot = Math.toDegrees(Math.atan(Math.sqrt(Math.pow(speakerpos.getX() - axelpos.getX(), 2) + Math.pow(speakerpos.getY() - axelpos.getY(), 2)) / (speakerpos.getZ() - axelpos.getZ())));
+        double sidedis = Math.sqrt(Math.pow(speakerpos.getX()-axelpos.getX(),2)+Math.pow(axelspeakerdistz,2)+Math.pow(speakerpos.getY()-axelpos.getY(),2));
+        double siderot = Math.toDegrees(Math.atan(Math.sqrt(Math.pow(speakerpos.getX() - axelpos.getX(), 2) + Math.pow(speakerpos.getY() - axelpos.getY(), 2)) / (axelspeakerdistz)));
 
-        angle = 90 - (180 - (Math.toDegrees(Math.asin((Math.sin(Math.toRadians(shootrot) * arml) / sidedis))) + shootrot + siderot));
+        angle = 90 - (180 - (Math.toDegrees(Math.asin((Math.sin(Math.toRadians(shootrot)) * arml) / sidedis)) + shootrot + siderot));
         
         m_arm.setAngle(175 + Math.min(Math.max(angle, 0),90));
         
