@@ -62,7 +62,7 @@ public class SpeakerAim extends Command implements Logged {
         speakerpos = new Pose3d(
                 53.425351,
                 18.16625,
-                6.666666667,
+                5.65,
                 new Rotation3d());
         body = new Pose3d(
                 Feet.convertFrom(m_drive.getPose().getX(), Meters),
@@ -91,19 +91,10 @@ public class SpeakerAim extends Command implements Logged {
 
     @Override
     public void execute() {
-        double yaw = -(Math.toDegrees(Math.atan((speakerpos.getY() - body.getY()) / (speakerpos.getX() - body.getX()))));
-
-        Pose3d axelpos = new Pose3d(
-            (body.getX() + (Math.cos(Math.toRadians(yaw)) * pointaxeldis)),
-            (body.getY() + (Math.sin(Math.toRadians(yaw)) * pointaxeldis)),
-            bumph,
-            new Rotation3d()
-        );
-
         double sidedis = Math.sqrt(Math.pow(speakerpos.getX()-axelpos.getX(),2)+Math.pow(speakerpos.getZ()-axelpos.getZ(),2)+Math.pow(speakerpos.getY()-axelpos.getY(),2));
-        double siderot = Math.toDegrees(Math.atan(Math.sqrt(Math.pow(speakerpos.getX() - axelpos.getX(), 2) + Math.pow(speakerpos.getY() - axelpos.getY(), 2)) / (speakerpos.getY() - axelpos.getY())));
+        double siderot = Math.toDegrees(Math.atan(Math.sqrt(Math.pow(speakerpos.getX() - axelpos.getX(), 2) + Math.pow(speakerpos.getY() - axelpos.getY(), 2)) / (speakerpos.getZ() - axelpos.getZ())));
 
-        double angle = 90 - (180 - (Math.toDegrees(Math.asin((Math.sin(Math.toRadians(shootrot) * arml) / sidedis)) - shootrot - siderot)));
+        angle = 90 - (180 - (Math.toDegrees(Math.asin((Math.sin(Math.toRadians(shootrot) * arml) / sidedis))) + shootrot + siderot));
         
         m_arm.setAngle(175 + Math.min(Math.max(angle, 0),90));
         
@@ -119,38 +110,6 @@ public class SpeakerAim extends Command implements Logged {
         return (loop >= repetitions);
     }
 }
-
-/* GRAVITY CODE
- * float yaw = -(Mathf.Rad2Deg * Mathf.Atan((speakerpos.position.z - body.transform.position.z) / (speakerpos.position.x - body.transform.position.x)));
-        body.Rotate(0, 0, yaw);
-
-        Vector3 axelpos = new(
-            (body.position.x + (Mathf.Cos(Mathf.Deg2Rad * yaw) * pointaxeldis)),
-            bumph,
-            (body.position.z + (Mathf.Sin(Mathf.Deg2Rad * yaw) * pointaxeldis))
-        );
-        axelpos = transform.position;
-
-        float sidedis = Vector3.Distance(axelpos, speakerpos.position);
-        float siderot = Mathf.Rad2Deg * Mathf.Atan(Mathf.Sqrt(Mathf.Pow(speakerpos.position.x - axelpos.x, 2) + Mathf.Pow(speakerpos.position.z - axelpos.z, 2)) / (speakerpos.position.y - axelpos.y));
-
-        float angle = 90 - (180 - (Mathf.Rad2Deg * Mathf.Asin((Mathf.Sin(Mathf.Deg2Rad * shootrot) * arml) / sidedis)) - shootrot - siderot);
-        float shootflrlength = (Mathf.Cos(Mathf.Deg2Rad * angle) * arml);
-
-        transform.Rotate(0, 0, angle);
-        Vector3 shootpos = new(
-            (axelpos.x - Mathf.Cos(Mathf.Deg2Rad * yaw) * shootflrlength),
-            (axelpos.y + Mathf.Sin(Mathf.Deg2Rad * angle) * arml),
-            (axelpos.z + Mathf.Sin(Mathf.Deg2Rad * yaw) * shootflrlength)
-        );
-        Object newnote = Instantiate(note, shootpos, Quaternion.Euler(-90, 90 + yaw, 0));
-        //float vectflrlenght = Mathf.Cos(angle) * newvel;
-        //print(newvel);
-        newnote.GetComponent<Transform>().Rotate(angle + 180 - shootrot, 0, 0);
-        //newnote.GetComponent<move>().setVector(new(Mathf.Cos(Mathf.Deg2Rad * yaw) * vectflrlenght, Mathf.Sin(Mathf.Deg2Rad * angle) * newvel, Mathf.Sin(Mathf.Deg2Rad * yaw) * vectflrlenght));
-        newnote.GetComponent<Transform>().Rotate(0, 0, 0);
- */
-
  /*
   * // the differences in position
         xzdiff = Math.sqrt(

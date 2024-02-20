@@ -121,14 +121,14 @@ public class RobotContainer implements Logged {
     // Schedule `exampleMethodCommand` when the Xbox controller's B button is
     // pressed,
     // cancelling on release.
-    /*
+    
      
     Trigger restartRoborio = joystick.trigger();
     restartRoborio.onTrue(new InstantCommand(() -> {
       navx.ahrs.zeroYaw();
 
     }));
-    */
+    
     Trigger moveArm = m_driverController.a();
     moveArm.onTrue(armTrain.incrementPosition());
     Trigger moveArmD = m_driverController.b();
@@ -148,7 +148,7 @@ public class RobotContainer implements Logged {
     X.onFalse(intakeTrain.speed(0));
 
     Trigger Y = m_driverController.y();
-    Y.whileTrue(shooterTrain.setSpeed(-3500));
+    Y.whileTrue(shooterTrain.setSpeed(-3000));
     // Y.whileTrue(shooterTrain.setSpeed(-0.6));
     Y.onFalse(shooterTrain.setSpeed(0));
     Trigger dpad = m_driverController.povLeft();
@@ -157,10 +157,10 @@ public class RobotContainer implements Logged {
 
     Trigger r = m_driverController.povRight();
     r.onTrue(armTrain.setPosition(175 + 11));
-    Trigger l = m_driverController.povUp();
-    l.onTrue(armTrain.setPosition(175));
-    Trigger d = m_driverController.povDown();
-    d.onTrue(armTrain.setPosition(175 + 105));
+    Trigger l = m_driverController.povDown();
+    l.onTrue(armTrain.setPosition(175+.5));
+    Trigger d = m_driverController.povUp();
+    d.onTrue(armTrain.setPosition(279));
     Trigger bump = m_driverController.leftBumper();
     bump.onTrue(getSpekAim());
 

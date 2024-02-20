@@ -101,7 +101,8 @@ public class DriveTrain extends SubsystemBase implements Logged {
             m_rearRight.getPosition(),
         });
     cam = new PhotonCamera("Arducam_OV2311_USB_Camera");
-    Transform3d robotToCam = new Transform3d(new Translation3d(-0.36, 0.165, 0.158), new Rotation3d(0, Math.toRadians(149), Math.toRadians(180)));
+    Transform3d robotToCam = new Transform3d(new Translation3d(-0.36, 0.165, 0.158),
+        new Rotation3d(0, Math.toRadians(149), Math.toRadians(180)));
 
     var stateStdDevs = VecBuilder.fill(0.1, 0.1, 0.1);
     var visionStdDevs = VecBuilder.fill(1, 1, 1);
@@ -333,6 +334,11 @@ public class DriveTrain extends SubsystemBase implements Logged {
    *
    * @param desiredStates The desired SwerveModule states.
    */
+  @Log.NT public SwerveModuleState[] getModuleStates() {
+    return new SwerveModuleState[] { m_frontLeft.getState(), m_frontRight.getState(), m_rearLeft.getState(),
+        m_rearRight.getState() };
+  }
+
   public void setModuleStates(SwerveModuleState[] desiredStates) {
     /*
      * SwerveDriveKinematics.desaturateWheelSpeeds(
@@ -438,6 +444,7 @@ public class DriveTrain extends SubsystemBase implements Logged {
       Pose2d visionMeasurement, double timestampSeconds, Matrix<N3, N1> stdDevs) {
     poseEstimator.addVisionMeasurement(visionMeasurement, timestampSeconds, stdDevs);
   }
+
   public void setYaw(double yaw) {
 
   }
