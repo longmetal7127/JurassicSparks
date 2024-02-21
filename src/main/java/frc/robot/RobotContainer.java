@@ -148,7 +148,7 @@ public class RobotContainer implements Logged {
     X.onFalse(intakeTrain.speed(0));
 
     Trigger Y = m_driverController.y();
-    Y.whileTrue(shooterTrain.setSpeed(-3000));
+    Y.whileTrue(shooterTrain.setSpeed(-2400));
     // Y.whileTrue(shooterTrain.setSpeed(-0.6));
     Y.onFalse(shooterTrain.setSpeed(0));
     Trigger dpad = m_driverController.povLeft();

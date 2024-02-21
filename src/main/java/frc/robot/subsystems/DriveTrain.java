@@ -17,6 +17,7 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -65,7 +66,7 @@ public class DriveTrain extends SubsystemBase implements Logged {
 
   // The gyro sensor
   // private final ADIS16470_IMU m_gyro = new ADIS16470_IMU();
-  private NavX m_gyro;
+  public NavX m_gyro;
   // Slew rate filter variables for controlling lateral acceleration
   private double m_currentRotation = 0.0;
   private double m_currentTranslationDir = 0.0;
@@ -155,6 +156,8 @@ public class DriveTrain extends SubsystemBase implements Logged {
         this // The drive subsystem. Used to properly set the requirements of path following
     // commands
     );
+
+
   }
 
   /**
@@ -370,7 +373,7 @@ public class DriveTrain extends SubsystemBase implements Logged {
    *
    * @return the robot's heading in degrees, from -180 to 180
    */
-  public double getHeading() {
+  @Log.NT public double getHeading() {
     return m_gyro.ahrs.getRotation2d().getDegrees();
   }
 

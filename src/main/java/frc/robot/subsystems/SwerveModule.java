@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.AbsoluteEncoder;
+import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
@@ -20,7 +21,7 @@ import monologue.Annotations.Log;
  */
 public class SwerveModule implements Logged{
 
-  private final CANSparkMax m_drivingSpark;
+  private final CANSparkFlex m_drivingSpark;
   private final CANSparkMax m_turningSpark;
 
   private final RelativeEncoder m_drivingEncoder;
@@ -46,7 +47,7 @@ public class SwerveModule implements Logged{
     int turningCANId,
     double chassisAngularOffset
   ) {
-    m_drivingSpark = new CANSparkMax(drivingCANId, MotorType.kBrushless);
+    m_drivingSpark = new CANSparkFlex(drivingCANId, MotorType.kBrushless);
     m_turningSpark = new CANSparkMax(turningCANId, MotorType.kBrushless);
 
     // Factory reset, so we get the SPARKS MAX to a known state before configuring
