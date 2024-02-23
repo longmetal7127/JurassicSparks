@@ -61,6 +61,9 @@ public class SpeakerAim extends Command implements Logged {
     static final double kF = 0.00;
 
     static final double kToleranceDegrees = 2.0f;
+    private InterpolatingDoubleTreeMap map = new InterpolatingDoubleTreeMap(
+
+    );
 
     public SpeakerAim(DriveTrain drive, ArmTrain arm, boolean rotatebody) {
         // setting up drive/arm trains
@@ -69,11 +72,16 @@ public class SpeakerAim extends Command implements Logged {
         m_arm = arm;
         m_rotatebody = rotatebody;
         turnController = new PIDController(kP, kI, kD);
+        map.put(1.571, 207.0);
+        map.put(3.02, 213.0);
+        map.put(4.39, 220.0);
+        map.put(1.381, 202.0);
 
     }
-    InterpolatingDoubleTreeMap map = new InterpolatingDoubleTreeMap();
-    
+
+
     private double distance;
+
     @Override
     public void initialize() {
         turnController.reset();
@@ -88,46 +96,34 @@ public class SpeakerAim extends Command implements Logged {
                 6.30,
                 new Rotation3d());
         distance = body.getTranslation().getDistance(speakerpos.getTranslation());
-       /*  // finding necessary body rotation
-        yaw = 180 - (Math.toDegrees(Math.atan(speakerpos.getY() - body.getY())) / (speakerpos.getX() - body.getX()));
-        double opyaw = yaw - 180;
-
-        // not sure if i need this but its here anyway
-        body.rotateBy(new Rotation3d(0, 0, opyaw));
-
-        // setting up axel pos
-        axelpos = new Pose3d(
-                (body.getX() - (Math.cos(Math.toRadians(yaw)) * pointaxeldis)),
-                (body.getY() - (Math.sin(Math.toRadians(yaw)) * pointaxeldis)),
-                (bumph),
-                new Rotation3d());
-        shootpos = axelpos;
-        axelspeakerdistz = 5.7125;//speakerpos.getZ() - bumph;
-        if (m_rotatebody) {
-            turnController.setSetpoint(opyaw);
-            System.out.println("YAWWWW" + opyaw);
-        }
-*/
     }
 
     @Override
     public void execute() {
-        /*if (m_rotatebody) {
-            m_drive.drive(0, 0, turnController.calculate(m_drive.m_gyro.ahrs.getYaw()), true, false);
-        }
-
-        double sidedis = Math.sqrt(Math.pow(speakerpos.getX() - axelpos.getX(), 2) + Math.pow(axelspeakerdistz, 2)
-                + Math.pow(speakerpos.getY() - axelpos.getY(), 2));
-        double siderot = Math.toDegrees(Math.atan(Math
-                .sqrt(Math.pow(speakerpos.getX() - axelpos.getX(), 2) + Math.pow(speakerpos.getY() - axelpos.getY(), 2))
-                / (axelspeakerdistz)));
-
-        angle = 90 - (180 - (Math.toDegrees(Math.asin((Math.sin(Math.toRadians(shootrot)) * arml) / sidedis)) + shootrot
-                + siderot));
-
-        m_arm.setAngle(175 + Math.min(Math.max(angle, 0), 90));
-
-        loop++;*/
+        /*
+         * if (m_rotatebody) {
+         * m_drive.drive(0, 0, turnController.calculate(m_drive.m_gyro.ahrs.getYaw()),
+         * true, false);
+         * }
+         * 
+         * double sidedis = Math.sqrt(Math.pow(speakerpos.getX() - axelpos.getX(), 2) +
+         * Math.pow(axelspeakerdistz, 2)
+         * + Math.pow(speakerpos.getY() - axelpos.getY(), 2));
+         * double siderot = Math.toDegrees(Math.atan(Math
+         * .sqrt(Math.pow(speakerpos.getX() - axelpos.getX(), 2) +
+         * Math.pow(speakerpos.getY() - axelpos.getY(), 2))
+         * / (axelspeakerdistz)));
+         * 
+         * angle = 90 - (180 -
+         * (Math.toDegrees(Math.asin((Math.sin(Math.toRadians(shootrot)) * arml) /
+         * sidedis)) + shootrot
+         * + siderot));
+         * 
+         * m_arm.setAngle(175 + Math.min(Math.max(angle, 0), 90));
+         * 
+         * loop++;
+         */
+        m_arm.setAngle(map.get(distance));
     }
 
     @Override
@@ -136,7 +132,7 @@ public class SpeakerAim extends Command implements Logged {
 
     @Override
     public boolean isFinished() {
-        return (loop >= repetitions);
+        return true;
     }
 }
 /*
