@@ -19,6 +19,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -121,44 +123,59 @@ public class RobotContainer implements Logged {
     // Schedule `exampleMethodCommand` when the Xbox controller's B button is
     // pressed,
     // cancelling on release.
-    
-     
+
     Trigger restartRoborio = joystick.trigger();
     restartRoborio.onTrue(new InstantCommand(() -> {
       navx.ahrs.zeroYaw();
 
     }));
-    
+
     Trigger moveArm = m_driverController.a();
     moveArm.onTrue(armTrain.incrementPosition());
     Trigger moveArmD = m_driverController.b();
     moveArmD.onTrue(armTrain.decrementPosition());
-    
-     /*  Trigger a = m_driverController.a();
-      a.onTrue(shooterTrain.quasistaticForward());
-      Trigger b = m_driverController.b();
-      b.onTrue(shooterTrain.quasistaticBackward());
-      Trigger x = m_driverController.x();
-      x.onTrue(shooterTrain.dynamicForward());
-      Trigger y = m_driverController.y();
-      y.onTrue(shooterTrain.dynamicBackward());*/
-     
+
+    // Sysid
+    /*
+     * Trigger a = m_driverController.a();
+     * a.onTrue(intakeTrain.quasistaticForward());
+     * Trigger b = m_driverController.b();
+     * b.onTrue(intakeTrain.quasistaticBackward());
+     * Trigger x = m_driverController.x();
+     * x.onTrue(intakeTrain.dynamicForward());
+     * Trigger y = m_driverController.y();
+     * y.onTrue(intakeTrain.dynamicBackward());
+     */
     Trigger X = m_driverController.x();
-    X.whileTrue(intakeTrain.speed(-0.6));
-    X.onFalse(intakeTrain.speed(0));
+    X.whileTrue(intakeTrain.setSpeed(-5000));
+    X.onFalse(intakeTrain.setSpeed(0));
 
     Trigger Y = m_driverController.y();
-    Y.whileTrue(shooterTrain.setSpeed(-2400));
+    Y.onTrue(new SequentialCommandGroup(
+        intakeTrain.setSpeed(0.2),
+        new WaitCommand(0.1),
+        intakeTrain.setSpeed(0),
+        shooterTrain.setSpeed(-2000),
+        new WaitCommand(1),
+        intakeTrain.setSpeed(-0.7),
+        new WaitCommand(0.3),
+        intakeTrain.setSpeed(0),
+        shooterTrain.setSpeed(0)
+
+    ));
     // Y.whileTrue(shooterTrain.setSpeed(-0.6));
-    Y.onFalse(shooterTrain.setSpeed(0));
+    // Y.onFalse(shooterTrain.setSpeed(0));
     Trigger dpad = m_driverController.povLeft();
     dpad.whileTrue(shooterTrain.setSpeed(200));
     dpad.onFalse(shooterTrain.setSpeed(0));
 
     Trigger r = m_driverController.povRight();
-    r.onTrue(armTrain.setPosition(175 + 11));
+    r.onTrue(armTrain.setPosition(175 + 11 + 8));
+
     Trigger l = m_driverController.povDown();
-    l.onTrue(armTrain.setPosition(175+.5));
+    l.whileTrue(new SequentialCommandGroup(armTrain.setPosition(175 + .5), intakeTrain.setSpeed(-5000)));
+    l.onFalse(intakeTrain.setSpeed(0));
+
     Trigger d = m_driverController.povUp();
     d.onTrue(armTrain.setPosition(279));
     Trigger bump = m_driverController.leftBumper();

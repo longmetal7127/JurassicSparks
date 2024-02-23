@@ -1,26 +1,63 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.SparkPIDController;
+import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 //import frc.robot.Constants;
 import frc.robot.Constants.IntakeConstants;
+import static edu.wpi.first.units.Units.*;
 
 public class IntakeTrain extends SubsystemBase {
-    private CANSparkMax intakeMotors = new CANSparkMax(IntakeConstants.kIntakeMotorCanId, MotorType.kBrushless);
+    private CANSparkMax IntakeMotorLeft = new CANSparkMax(IntakeConstants.kIntakeMotorCanId,
+            MotorType.kBrushless);
+
+    //private SparkPIDController leftPID = IntakeMotorLeft.getPIDController();
+    private SysIdRoutine sysIdRoutine;
+    private SimpleMotorFeedforward feedForward = new SimpleMotorFeedforward(0.12128, 0.00012349, 0.0010215);
 
     public IntakeTrain() {
-       // intakeMotors.set(IntakeConstants.kSpeed);
+       /*  sysIdRoutine = new SysIdRoutine(
+                new SysIdRoutine.Config(),
+                new SysIdRoutine.Mechanism(
+                        (voltage) -> IntakeMotorLeft.setVoltage(voltage.in(Volts)),
+                        null, // No log consumer, since data is recorded by URCL
+                        this));
+
+        leftPID.setP(.000000091372);
+        leftPID.setI(0);
+        leftPID.setD(0);
+        // leftPID.setFF(0.0021422);
+        IntakeMotorLeft.setSmartCurrentLimit(20);*/
     }
 
-    public void setSpeed(double speed) {
-        intakeMotors.set(speed);
+    public Command quasistaticForward() {
+        return sysIdRoutine.quasistatic(Direction.kForward);
     }
-    public Command speed(double speed) {
-        return this.run(()-> {
-            intakeMotors.set(speed);
+
+    public Command quasistaticBackward() {
+        return sysIdRoutine.quasistatic(Direction.kReverse);
+    }
+
+    public Command dynamicForward() {
+        return sysIdRoutine.dynamic(Direction.kForward);
+    }
+
+    public Command dynamicBackward() {
+        return sysIdRoutine.dynamic(Direction.kReverse);
+    }
+
+    public Command setSpeed(double speed) {
+        return this.runOnce(() -> {
+            //leftPID.setReference(speed, ControlType.kVelocity, 0,
+                //    feedForward.calculate(speed));
+                IntakeMotorLeft.set(speed);
         });
     }
 }

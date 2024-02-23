@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -25,7 +26,7 @@ public class ArmTrain extends SubsystemBase implements Logged {
             com.revrobotics.CANSparkLowLevel.MotorType.kBrushless);
     private AbsoluteEncoder m_turningEncoder;
     private SparkPIDController m_leftPID;
-
+    private ArmFeedforward feedforward = new ArmFeedforward(0.34728, 0.60802, 4.7463E-06, 9.8036E-07);
     @Log.NT
     private double pos = 175;
     private SysIdRoutine sysIdRoutine;
@@ -65,7 +66,7 @@ public class ArmTrain extends SubsystemBase implements Logged {
 
     public Command setPosition(double pos) {
         return this.runOnce(() -> {
-            m_leftPID.setReference(pos, ControlType.kPosition);
+            m_leftPID.setReference(pos, ControlType.kPosition, 0, feedforward.calculate(Math.toRadians(pos), 0));
             this.pos = pos;
         });
     }

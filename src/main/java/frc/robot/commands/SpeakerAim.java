@@ -6,6 +6,8 @@ import static edu.wpi.first.units.Units.Meters;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
+import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.ArmTrain;
 import frc.robot.subsystems.DriveTrain;
@@ -30,8 +32,8 @@ public class SpeakerAim extends Command implements Logged {
     private Pose3d speakerpos;
     @Log.NT
     private Pose3d body;
-    private Pose3d shootpos;
     private Pose3d axelpos;
+    private Pose3d shootpos;
 
     // tuning stuff for distances, positions, constants, or global vars
     private double arml = 2.16279528;
@@ -43,8 +45,8 @@ public class SpeakerAim extends Command implements Logged {
     private double axelspeakerdistz;
 
     // gravity vars (unneeded rn)
-    private double gravity = 32f;
-    private double velocity = 50;
+    private double gravity = 32;
+    private double velocity = 80;
     private double xzdiff;
     private double thetapos;
     private double thetaneg;
@@ -69,22 +71,24 @@ public class SpeakerAim extends Command implements Logged {
         turnController = new PIDController(kP, kI, kD);
 
     }
-
+    InterpolatingDoubleTreeMap map = new InterpolatingDoubleTreeMap();
+    
+    private double distance;
     @Override
     public void initialize() {
         turnController.reset();
         speakerpos = new Pose3d(
                 53.425351,
                 18.16625,
-                6.25,
+                6.30,
                 new Rotation3d());
         body = new Pose3d(
                 Feet.convertFrom(m_drive.getPose().getX(), Meters),
                 Feet.convertFrom(m_drive.getPose().getY(), Meters),
-                0,
+                6.30,
                 new Rotation3d());
-
-        // finding necessary body rotation
+        distance = body.getTranslation().getDistance(speakerpos.getTranslation());
+       /*  // finding necessary body rotation
         yaw = 180 - (Math.toDegrees(Math.atan(speakerpos.getY() - body.getY())) / (speakerpos.getX() - body.getX()));
         double opyaw = yaw - 180;
 
@@ -98,17 +102,17 @@ public class SpeakerAim extends Command implements Logged {
                 (bumph),
                 new Rotation3d());
         shootpos = axelpos;
-        axelspeakerdistz = speakerpos.getZ() - bumph;
+        axelspeakerdistz = 5.7125;//speakerpos.getZ() - bumph;
         if (m_rotatebody) {
             turnController.setSetpoint(opyaw);
             System.out.println("YAWWWW" + opyaw);
         }
-
+*/
     }
 
     @Override
     public void execute() {
-        if (m_rotatebody) {
+        /*if (m_rotatebody) {
             m_drive.drive(0, 0, turnController.calculate(m_drive.m_gyro.ahrs.getYaw()), true, false);
         }
 
@@ -123,7 +127,7 @@ public class SpeakerAim extends Command implements Logged {
 
         m_arm.setAngle(175 + Math.min(Math.max(angle, 0), 90));
 
-        loop++;
+        loop++;*/
     }
 
     @Override

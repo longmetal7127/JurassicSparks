@@ -1,5 +1,8 @@
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Feet;
+import static edu.wpi.first.units.Units.Meters;
+
 import java.util.Optional;
 
 import org.photonvision.PhotonCamera;
@@ -21,6 +24,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
@@ -367,7 +371,20 @@ public class DriveTrain extends SubsystemBase implements Logged {
   public void zeroHeading() {
     m_gyro.ahrs.zeroYaw();
   }
+  @Log.NT public double getDistance() {
+            Pose3d speakerpos = new Pose3d(
+                Meters.convertFrom(53.425351, Feet),
+                Meters.convertFrom(18.16625, Feet),
+                0,
+                new Rotation3d());
+        Pose3d body = new Pose3d(
+                getPose().getX(),
+                getPose().getY(),
+                0,
+                new Rotation3d());
+          return speakerpos.getTranslation().getDistance(body.getTranslation());
 
+  }
   /**
    * Returns the heading of the robot.
    *
