@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.math.controller.ArmFeedforward;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -31,7 +32,10 @@ public class ArmTrain extends SubsystemBase implements Logged {
     private double pos = 175;
     private SysIdRoutine sysIdRoutine;
     private double[] positions = { 13 };
-
+    private final TrapezoidProfile m_profile = new TrapezoidProfile(new TrapezoidProfile.Constraints(1.75, 0.75));
+    private TrapezoidProfile.State m_goal = new TrapezoidProfile.State();
+    private TrapezoidProfile.State m_setpoint = new TrapezoidProfile.State();
+    private double kDt = 0.02;
     public ArmTrain() {
         left.restoreFactoryDefaults();
 
@@ -64,9 +68,17 @@ public class ArmTrain extends SubsystemBase implements Logged {
         // m_leftPID.setPositionPIDWrappingMaxInput(120);
     }
 
+    @Override
+    public void periodic() {
+        m_setpoint = m_profile.calculate(kDt, m_setpoint, m_goal);
+
+        m_leftPID.setReference(pos, ControlType.kPosition, 0, feedforward.calculate(Math.toRadians(pos), m_setpoint.velocity));
+
+    }
+
     public Command setPosition(double pos) {
+
         return this.runOnce(() -> {
-            m_leftPID.setReference(pos, ControlType.kPosition, 0, feedforward.calculate(Math.toRadians(pos), 0));
             this.pos = pos;
         });
     }
@@ -74,6 +86,7 @@ public class ArmTrain extends SubsystemBase implements Logged {
     public void setAngle(double pos) {
         m_leftPID.setReference(pos, ControlType.kPosition);
         this.pos = pos;
+        m_goal = new TrapezoidProfile.State(pos, 0);
     }
 
     public void runVolts(double volts) {
