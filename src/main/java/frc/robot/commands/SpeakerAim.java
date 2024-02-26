@@ -79,21 +79,20 @@ public class SpeakerAim extends Command implements Logged {
 
     }
 
-
     private double distance;
 
     @Override
     public void initialize() {
         turnController.reset();
-        speakerpos = new Pose3d(
-                53.425351,
-                18.16625,
-                6.30,
+        Pose3d speakerpos = new Pose3d(
+                Meters.convertFrom(53.425351, Feet),
+                Meters.convertFrom(18.16625, Feet),
+                0,
                 new Rotation3d());
-        body = new Pose3d(
-                Feet.convertFrom(m_drive.getPose().getX(), Meters),
-                Feet.convertFrom(m_drive.getPose().getY(), Meters),
-                6.30,
+        Pose3d body = new Pose3d(
+                m_drive.getPose().getX(),
+                m_drive.getPose().getY(),
+                0,
                 new Rotation3d());
         distance = body.getTranslation().getDistance(speakerpos.getTranslation());
     }

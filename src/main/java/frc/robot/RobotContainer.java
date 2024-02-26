@@ -58,6 +58,7 @@ public class RobotContainer implements Logged {
   private final ArmTrain armTrain = new ArmTrain();
   private final IntakeTrain intakeTrain = new IntakeTrain();
   private final ShooterTrain shooterTrain = new ShooterTrain();
+  private final ClimbTrain climbTrain = new ClimbTrain();
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -66,6 +67,7 @@ public class RobotContainer implements Logged {
 
   public RobotContainer() {
     drive = new DriveTrain(navx);
+    new NamedCommands();
     // Configure the trigger bindings
     configureBindings();
     drive.setDefaultCommand(
@@ -181,6 +183,12 @@ public class RobotContainer implements Logged {
     Trigger bump = m_driverController.leftBumper();
     bump.onTrue(getSpekAim());
 
+
+    Trigger rBump = m_driverController.rightBumper();
+    rBump.onTrue(climbTrain.incrementPosition());
+
+    Trigger rTrigger = m_driverController.rightTrigger();
+    rTrigger.onTrue(climbTrain.decrementPosition());
     // wheelsX.onTrue(Commands.run(() -> drive.setX()));
   }
 
