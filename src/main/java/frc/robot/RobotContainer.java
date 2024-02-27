@@ -74,7 +74,7 @@ public class RobotContainer implements Logged {
         new RunCommand(
             () -> {
               double multiplier = (((joystick.getThrottle() * -1) + 1) / 2); // turbo mode
-              double z = RobotContainer.joystick.getZ() * -.8;
+              double z = RobotContainer.joystick.getZ() * -.9;
 
               drive.drive(
                   MathUtil.applyDeadband(
@@ -168,7 +168,7 @@ public class RobotContainer implements Logged {
     // Y.whileTrue(shooterTrain.setSpeed(-0.6));
     // Y.onFalse(shooterTrain.setSpeed(0));
     Trigger dpad = m_driverController.povLeft();
-    dpad.whileTrue(shooterTrain.setSpeed(200));
+    dpad.whileTrue(shooterTrain.setSpeed(-200));
     dpad.onFalse(shooterTrain.setSpeed(0));
 
     Trigger r = m_driverController.povRight();
@@ -179,7 +179,7 @@ public class RobotContainer implements Logged {
     l.onFalse(intakeTrain.setSpeed(0));
 
     Trigger d = m_driverController.povUp();
-    d.onTrue(armTrain.setPosition(279));
+    d.onTrue(armTrain.setPosition(273));
     Trigger bump = m_driverController.leftBumper();
     bump.onTrue(getSpekAim());
 

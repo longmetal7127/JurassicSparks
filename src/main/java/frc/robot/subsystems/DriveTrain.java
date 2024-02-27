@@ -106,8 +106,8 @@ public class DriveTrain extends SubsystemBase implements Logged {
             m_rearRight.getPosition(),
         });
     cam = new PhotonCamera("Arducam_OV2311_USB_Camera");
-    Transform3d robotToCam = new Transform3d(new Translation3d(-0.36, 0.165, 0.158),
-        new Rotation3d(0, Math.toRadians(149), Math.toRadians(180)));
+    Transform3d robotToCam = new Transform3d(new Translation3d(-0.0889, 0.3302, 0.508),
+        new Rotation3d(0, Math.toRadians(180 - 13), Math.toRadians(180)));
 
     var stateStdDevs = VecBuilder.fill(0.1, 0.1, 0.1);
     var visionStdDevs = VecBuilder.fill(1, 1, 1);
@@ -154,13 +154,13 @@ public class DriveTrain extends SubsystemBase implements Logged {
           if (alliance.isPresent()) {
             return alliance.get() == DriverStation.Alliance.Red;
           }
+
           return false;
         },
 
         this // The drive subsystem. Used to properly set the requirements of path following
     // commands
     );
-
 
   }
 
@@ -341,7 +341,8 @@ public class DriveTrain extends SubsystemBase implements Logged {
    *
    * @param desiredStates The desired SwerveModule states.
    */
-  @Log.NT public SwerveModuleState[] getModuleStates() {
+  @Log.NT
+  public SwerveModuleState[] getModuleStates() {
     return new SwerveModuleState[] { m_frontLeft.getState(), m_frontRight.getState(), m_rearLeft.getState(),
         m_rearRight.getState() };
   }
@@ -371,26 +372,30 @@ public class DriveTrain extends SubsystemBase implements Logged {
   public void zeroHeading() {
     m_gyro.ahrs.zeroYaw();
   }
-  @Log.NT public double getDistance() {
-            Pose3d speakerpos = new Pose3d(
-                Meters.convertFrom(53.425351, Feet),
-                Meters.convertFrom(18.16625, Feet),
-                0,
-                new Rotation3d());
-        Pose3d body = new Pose3d(
-                getPose().getX(),
-                getPose().getY(),
-                0,
-                new Rotation3d());
-          return speakerpos.getTranslation().getDistance(body.getTranslation());
+
+  @Log.NT
+  public double getDistance() {
+    Pose3d speakerpos = new Pose3d(
+        Meters.convertFrom(53.425351, Feet),
+        Meters.convertFrom(18.16625, Feet),
+        0,
+        new Rotation3d());
+    Pose3d body = new Pose3d(
+        getPose().getX(),
+        getPose().getY(),
+        0,
+        new Rotation3d());
+    return speakerpos.getTranslation().getDistance(body.getTranslation());
 
   }
+
   /**
    * Returns the heading of the robot.
    *
    * @return the robot's heading in degrees, from -180 to 180
    */
-  @Log.NT public double getHeading() {
+  @Log.NT
+  public double getHeading() {
     return m_gyro.ahrs.getRotation2d().getDegrees();
   }
 
