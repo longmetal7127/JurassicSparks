@@ -1,6 +1,7 @@
 package frc.robot.commands;
 
 import static edu.wpi.first.units.Units.Feet;
+import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 
 import edu.wpi.first.math.controller.PIDController;
@@ -87,7 +88,7 @@ public class SpeakerAim extends Command implements Logged {
         Pose3d speakerpos = new Pose3d(
                 Meters.convertFrom(53.425351, Feet),
                 Meters.convertFrom(18.16625, Feet),
-                0,
+                Meters.convertFrom(82, Inches),
                 new Rotation3d());
         Pose3d body = new Pose3d(
                 m_drive.getPose().getX(),
@@ -122,7 +123,7 @@ public class SpeakerAim extends Command implements Logged {
          * 
          * loop++;
          */
-        m_arm.setAngle(map.get(distance));
+        //m_arm.setAngle(map.get(distance));
     }
 
     @Override

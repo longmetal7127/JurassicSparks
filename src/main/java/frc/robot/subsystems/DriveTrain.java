@@ -106,8 +106,8 @@ public class DriveTrain extends SubsystemBase implements Logged {
             m_rearRight.getPosition(),
         });
     cam = new PhotonCamera("Arducam_OV2311_USB_Camera");
-    Transform3d robotToCam = new Transform3d(new Translation3d(-0.0889, 0.3302, 0.508),
-        new Rotation3d(0, Math.toRadians(180 - 13), Math.toRadians(180)));
+    Transform3d robotToCam = new Transform3d(new Translation3d(0.0889, -0.3302, 0.508),
+        new Rotation3d(0, Math.toRadians(180 - 13), Math.toRadians(0)));
 
     var stateStdDevs = VecBuilder.fill(0.1, 0.1, 0.1);
     var visionStdDevs = VecBuilder.fill(1, 1, 1);
@@ -136,8 +136,8 @@ public class DriveTrain extends SubsystemBase implements Logged {
         this::setChassisSpeeds,
         new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live in
             // your Constants class
-            new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
-            new PIDConstants(5.0, 0.0, 0.0), // Rotation PID constants
+            new PIDConstants(0.04, 0.0, 0.0), // Translation PID constants
+            new PIDConstants(1.0, 0.0, 0.0), // Rotation PID constants
             DriveConstants.kMaxSpeedMetersPerSecond, // Max module speed, in m/s
             DriveConstants.kDriveBaseRadius, // Drive base radius in meters. Distance from robot center to
             // furthest module.

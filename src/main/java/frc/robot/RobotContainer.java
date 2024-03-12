@@ -59,16 +59,39 @@ public class RobotContainer implements Logged {
   private final IntakeTrain intakeTrain = new IntakeTrain();
   private final ShooterTrain shooterTrain = new ShooterTrain();
   private final ClimbTrain climbTrain = new ClimbTrain();
+  private Command shootCommand = new SequentialCommandGroup(
+      intakeTrain.setSpeed(0.2),
+      new WaitCommand(0.1),
+      intakeTrain.setSpeed(0),
+      shooterTrain.setSpeed(-2000),
+      new WaitCommand(1),
+      intakeTrain.setSpeed(-0.7),
+      new WaitCommand(0.3),
+      intakeTrain.setSpeed(0),
+      shooterTrain.setSpeed(0)
 
+  );
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
-  private SendableChooser autoChooser;
+  private SendableChooser<Command> autoChooser;
 
   public RobotContainer() {
+
+    NamedCommands.registerCommand("shootPos", armTrain.setPosition(175 + 11 + 8));
+    NamedCommands.registerCommand("sndShootPos", armTrain.setPosition(175 + 11 + 23));
+
+        NamedCommands.registerCommand("trdShootPos", armTrain.setPosition(175 + 11 + 24));
+
+
+    NamedCommands.registerCommand("shoot", shootCommand);
+    NamedCommands.registerCommand("intake",
+        new SequentialCommandGroup(armTrain.setPosition(175 + .5), intakeTrain.setSpeed(-5000)));
+    NamedCommands.registerCommand("intakeOff",
+        intakeTrain.setSpeed(0));
+
     drive = new DriveTrain(navx);
-    new NamedCommands();
-    // Configure the trigger bindings
+
     configureBindings();
     drive.setDefaultCommand(
         new RunCommand(
@@ -153,18 +176,7 @@ public class RobotContainer implements Logged {
     X.onFalse(intakeTrain.setSpeed(0));
 
     Trigger Y = m_driverController.y();
-    Y.onTrue(new SequentialCommandGroup(
-        intakeTrain.setSpeed(0.2),
-        new WaitCommand(0.1),
-        intakeTrain.setSpeed(0),
-        shooterTrain.setSpeed(-2000),
-        new WaitCommand(1),
-        intakeTrain.setSpeed(-0.7),
-        new WaitCommand(0.3),
-        intakeTrain.setSpeed(0),
-        shooterTrain.setSpeed(0)
-
-    ));
+    Y.onTrue(shootCommand);
     // Y.whileTrue(shooterTrain.setSpeed(-0.6));
     // Y.onFalse(shooterTrain.setSpeed(0));
     Trigger dpad = m_driverController.povLeft();
@@ -172,7 +184,7 @@ public class RobotContainer implements Logged {
     dpad.onFalse(shooterTrain.setSpeed(0));
 
     Trigger r = m_driverController.povRight();
-    r.onTrue(armTrain.setPosition(175 + 11 + 8));
+    r.onTrue(armTrain.setPosition(175 + 11 + 6.5));
 
     Trigger l = m_driverController.povDown();
     l.whileTrue(new SequentialCommandGroup(armTrain.setPosition(175 + .5), intakeTrain.setSpeed(-5000)));
@@ -183,12 +195,15 @@ public class RobotContainer implements Logged {
     Trigger bump = m_driverController.leftBumper();
     bump.onTrue(getSpekAim());
 
-
     Trigger rBump = m_driverController.rightBumper();
     rBump.onTrue(climbTrain.incrementPosition());
 
     Trigger rTrigger = m_driverController.rightTrigger();
     rTrigger.onTrue(climbTrain.decrementPosition());
+
+        Trigger lTrigger = m_driverController.leftTrigger();
+    lTrigger.onTrue(climbTrain.setPosition(515));
+
     // wheelsX.onTrue(Commands.run(() -> drive.setX()));
   }
 
@@ -198,7 +213,7 @@ public class RobotContainer implements Logged {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return new PathPlannerAuto("New Auto");
+    return autoChooser.getSelected();
     // An example command will be run in autonomous
     // return Autos.exampleAuto(m_exampleSubsystem);
   }
