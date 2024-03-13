@@ -4,17 +4,15 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-
-import monologue.Monologue;
 import monologue.Annotations.Log;
 import monologue.Logged;
+import monologue.Monologue;
 import org.littletonrobotics.urcl.URCL;
-
-import edu.wpi.first.wpilibj.DataLogManager;
-import edu.wpi.first.wpilibj.DriverStation;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -48,10 +46,8 @@ public class Robot extends TimedRobot implements Logged {
     DataLogManager.start();
     URCL.start();
 
-
     // Record both DS control and joystick data
     DriverStation.startDataLog(DataLogManager.getLog());
-
   }
 
   @Log.NT
@@ -78,17 +74,14 @@ public class Robot extends TimedRobot implements Logged {
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
     Monologue.updateAll();
-
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
-  public void disabledInit() {
-  }
+  public void disabledInit() {}
 
   @Override
-  public void disabledPeriodic() {
-  }
+  public void disabledPeriodic() {}
 
   /**
    * This autonomous runs the autonomous command selected by your
@@ -106,8 +99,7 @@ public class Robot extends TimedRobot implements Logged {
 
   /** This function is called periodically during autonomous. */
   @Override
-  public void autonomousPeriodic() {
-  }
+  public void autonomousPeriodic() {}
 
   @Override
   public void teleopInit() {
@@ -122,8 +114,7 @@ public class Robot extends TimedRobot implements Logged {
 
   /** This function is called periodically during operator control. */
   @Override
-  public void teleopPeriodic() {
-  }
+  public void teleopPeriodic() {}
 
   @Override
   public void testInit() {
@@ -133,16 +124,13 @@ public class Robot extends TimedRobot implements Logged {
 
   /** This function is called periodically during test mode. */
   @Override
-  public void testPeriodic() {
-  }
+  public void testPeriodic() {}
 
   /** This function is called once when the robot is first started up. */
   @Override
-  public void simulationInit() {
-  }
+  public void simulationInit() {}
 
   /** This function is called periodically whilst in simulation. */
   @Override
-  public void simulationPeriodic() {
-  }
+  public void simulationPeriodic() {}
 }

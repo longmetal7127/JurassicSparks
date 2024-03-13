@@ -2,24 +2,24 @@ package frc.robot.subsystems;
 
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkFlex;
-import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkLowLevel.MotorType;
+import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkAbsoluteEncoder.Type;
 import com.revrobotics.SparkPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics.SwerveDriveWheelStates;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics.SwerveDriveWheelStates;
 import frc.robot.Constants.ModuleConstants;
-import monologue.Logged;
 import monologue.Annotations.Log;
+import monologue.Logged;
 
 /**
  * this is not a subsystem and is not scheduled like other files in this folder it's here for
  * conviencence
  */
-public class SwerveModule implements Logged{
+public class SwerveModule implements Logged {
 
   private final CANSparkFlex m_drivingSpark;
   private final CANSparkMax m_turningSpark;
@@ -31,8 +31,9 @@ public class SwerveModule implements Logged{
   private final SparkPIDController m_turningPIDController;
 
   private double m_chassisAngularOffset = 0;
-  
-  @Log.NT private SwerveModuleState m_desiredState = new SwerveModuleState(
+
+  @Log.NT
+  private SwerveModuleState m_desiredState = new SwerveModuleState(
     0.0,
     new Rotation2d()
   );

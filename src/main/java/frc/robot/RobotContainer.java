@@ -4,8 +4,6 @@
 
 package frc.robot;
 
-import org.ejml.dense.block.MatrixOps_DDRB;
-
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 //import com.pathplanner.lib.auto.AutoBuilder.TriFunction;
@@ -27,13 +25,15 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.SpeakerAim;
+import frc.robot.subsystems.ArmTrain;
+import frc.robot.subsystems.ClimbTrain;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.IntakeTrain;
+import frc.robot.subsystems.LightTrain;
 import frc.robot.subsystems.NavX;
 import frc.robot.subsystems.ShooterTrain;
 import monologue.Logged;
-import frc.robot.subsystems.ArmTrain;
-import frc.robot.subsystems.ClimbTrain;
+import org.ejml.dense.block.MatrixOps_DDRB;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -51,25 +51,23 @@ public class RobotContainer implements Logged {
   private DriveTrain drive;
 
   public static CommandJoystick joystick = new CommandJoystick(
-      Constants.OperatorConstants.kDriverJoystickPort);
+    Constants.OperatorConstants.kDriverJoystickPort
+  );
 
-  private static CommandXboxController m_driverController = new CommandXboxController(
-      OperatorConstants.kDriverControllerPort);
+  private static CommandXboxController m_driverController =
+    new CommandXboxController(OperatorConstants.kDriverControllerPort);
   private final ArmTrain armTrain = new ArmTrain();
   private final IntakeTrain intakeTrain = new IntakeTrain();
   private final ShooterTrain shooterTrain = new ShooterTrain();
   private final ClimbTrain climbTrain = new ClimbTrain();
+  private final LightTrain lightTrain = new LightTrain();
   private Command shootCommand = new SequentialCommandGroup(
-      intakeTrain.setSpeed(0.2),
-      new WaitCommand(0.1),
-      intakeTrain.setSpeed(0),
-      shooterTrain.setSpeed(-2000),
-      new WaitCommand(1),
-      intakeTrain.setSpeed(-0.7),
-      new WaitCommand(0.3),
-      intakeTrain.setSpeed(0),
-      shooterTrain.setSpeed(0)
-
+    shooterTrain.setSpeed(-2000),
+    new WaitCommand(1),
+    intakeTrain.setSpeed(-0.7),
+    new WaitCommand(0.3),
+    intakeTrain.setSpeed(0),
+    shooterTrain.setSpeed(0)
   );
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -77,42 +75,56 @@ public class RobotContainer implements Logged {
   private SendableChooser<Command> autoChooser;
 
   public RobotContainer() {
+    NamedCommands.registerCommand(
+      "shootPos",
+      armTrain.setPosition(175 + 11 + 8)
+    );
+    NamedCommands.registerCommand(
+      "sndShootPos",
+      armTrain.setPosition(175 + 11 + 23)
+    );
 
-    NamedCommands.registerCommand("shootPos", armTrain.setPosition(175 + 11 + 8));
-    NamedCommands.registerCommand("sndShootPos", armTrain.setPosition(175 + 11 + 23));
-
-        NamedCommands.registerCommand("trdShootPos", armTrain.setPosition(175 + 11 + 24));
-
+    NamedCommands.registerCommand(
+      "trdShootPos",
+      armTrain.setPosition(175 + 11 + 24)
+    );
 
     NamedCommands.registerCommand("shoot", shootCommand);
-    NamedCommands.registerCommand("intake",
-        new SequentialCommandGroup(armTrain.setPosition(175 + .5), intakeTrain.setSpeed(-5000)));
-    NamedCommands.registerCommand("intakeOff",
-        intakeTrain.setSpeed(0));
+    NamedCommands.registerCommand(
+      "intake",
+      new SequentialCommandGroup(
+        armTrain.setPosition(175 + .5),
+        intakeTrain.setSpeed(-5000)
+      )
+    );
+    NamedCommands.registerCommand("intakeOff", intakeTrain.setSpeed(0));
 
     drive = new DriveTrain(navx);
 
     configureBindings();
     drive.setDefaultCommand(
-        new RunCommand(
-            () -> {
-              double multiplier = (((joystick.getThrottle() * -1) + 1) / 2); // turbo mode
-              double z = RobotContainer.joystick.getZ() * -.9;
+      new RunCommand(
+        () -> {
+          double multiplier = (((joystick.getThrottle() * -1) + 1) / 2); // turbo mode
+          double z = RobotContainer.joystick.getZ() * -.9;
 
-              drive.drive(
-                  MathUtil.applyDeadband(
-                      joystick.getY() * -multiplier,
-                      OperatorConstants.kDriveDeadband),
-                  MathUtil.applyDeadband(
-                      joystick.getX() * -multiplier,
-                      OperatorConstants.kDriveDeadband),
-                  MathUtil.applyDeadband(
-                      z,
-                      OperatorConstants.kDriveDeadband),
-                  true,
-                  true);
-            },
-            drive));
+          drive.drive(
+            MathUtil.applyDeadband(
+              joystick.getY() * -multiplier,
+              OperatorConstants.kDriveDeadband
+            ),
+            MathUtil.applyDeadband(
+              joystick.getX() * -multiplier,
+              OperatorConstants.kDriveDeadband
+            ),
+            MathUtil.applyDeadband(z, OperatorConstants.kDriveDeadband),
+            true,
+            true
+          );
+        },
+        drive
+      )
+    );
     autoChooser = AutoBuilder.buildAutoChooser();
 
     // Another option that allows you to specify the default auto by its name
@@ -141,24 +153,21 @@ public class RobotContainer implements Logged {
   }
 
   private void configureBindings() {
-    // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
-    // new Trigger(m_exampleSubsystem::exampleCondition)
-    // .onTrue(new ExampleCommand(m_exampleSubsystem));
+    intakeTrain.hasNote.onFalse(lightTrain.setColor(0, 0, 0));
+    intakeTrain.hasNote.onTrue(lightTrain.setColor(255, 0, 0));
 
-    // Schedule `exampleMethodCommand` when the Xbox controller's B button is
-    // pressed,
-    // cancelling on release.
+    Trigger zeroYaw = joystick.trigger();
+    zeroYaw.onTrue(
+      new InstantCommand(() -> {
+        navx.ahrs.zeroYaw();
+      })
+    );
 
-    Trigger restartRoborio = joystick.trigger();
-    restartRoborio.onTrue(new InstantCommand(() -> {
-      navx.ahrs.zeroYaw();
+    Trigger fineMoveUp = m_driverController.a();
+    fineMoveUp.onTrue(armTrain.incrementPosition());
 
-    }));
-
-    Trigger moveArm = m_driverController.a();
-    moveArm.onTrue(armTrain.incrementPosition());
-    Trigger moveArmD = m_driverController.b();
-    moveArmD.onTrue(armTrain.decrementPosition());
+    Trigger fineMoveDown = m_driverController.b();
+    fineMoveDown.onTrue(armTrain.decrementPosition());
 
     // Sysid
     /*
@@ -171,40 +180,43 @@ public class RobotContainer implements Logged {
      * Trigger y = m_driverController.y();
      * y.onTrue(intakeTrain.dynamicBackward());
      */
-    Trigger X = m_driverController.x();
-    X.whileTrue(intakeTrain.setSpeed(-5000));
-    X.onFalse(intakeTrain.setSpeed(0));
+    Trigger manualIntake = m_driverController.x();
+    manualIntake.whileTrue(intakeTrain.setSpeed(-5000));
+    manualIntake.onFalse(intakeTrain.setSpeed(0));
 
-    Trigger Y = m_driverController.y();
-    Y.onTrue(shootCommand);
-    // Y.whileTrue(shooterTrain.setSpeed(-0.6));
-    // Y.onFalse(shooterTrain.setSpeed(0));
-    Trigger dpad = m_driverController.povLeft();
-    dpad.whileTrue(shooterTrain.setSpeed(-200));
-    dpad.onFalse(shooterTrain.setSpeed(0));
+    Trigger shoot = m_driverController.y();
+    shoot.onTrue(shootCommand);
 
-    Trigger r = m_driverController.povRight();
-    r.onTrue(armTrain.setPosition(175 + 11 + 6.5));
+    Trigger ampShoot = m_driverController.povLeft();
+    ampShoot.whileTrue(shooterTrain.setSpeed(-200));
+    ampShoot.onFalse(shooterTrain.setSpeed(0));
 
-    Trigger l = m_driverController.povDown();
-    l.whileTrue(new SequentialCommandGroup(armTrain.setPosition(175 + .5), intakeTrain.setSpeed(-5000)));
-    l.onFalse(intakeTrain.setSpeed(0));
+    Trigger subwooferShootPosition = m_driverController.povRight();
+    subwooferShootPosition.onTrue(armTrain.setPosition(175 + 11 + 6.5));
 
-    Trigger d = m_driverController.povUp();
-    d.onTrue(armTrain.setPosition(273));
-    Trigger bump = m_driverController.leftBumper();
-    bump.onTrue(getSpekAim());
+    Trigger intakePosition = m_driverController.povDown();
+    intakePosition.whileTrue(
+      new SequentialCommandGroup(armTrain.setPosition(175 + .5))
+    );
 
-    Trigger rBump = m_driverController.rightBumper();
-    rBump.onTrue(climbTrain.incrementPosition());
+    Trigger startIntake = m_driverController.povDown().and(intakeTrain.noNote);
+    startIntake.onTrue(intakeTrain.setSpeed(-5000));
+    startIntake.onFalse(intakeTrain.setSpeed(0));
 
-    Trigger rTrigger = m_driverController.rightTrigger();
-    rTrigger.onTrue(climbTrain.decrementPosition());
+    Trigger ampPosition = m_driverController.povUp();
+    ampPosition.onTrue(armTrain.setPosition(273));
 
-        Trigger lTrigger = m_driverController.leftTrigger();
-    lTrigger.onTrue(climbTrain.setPosition(515));
+    Trigger autoAim = m_driverController.leftBumper();
+    autoAim.onTrue(getSpekAim());
 
-    // wheelsX.onTrue(Commands.run(() -> drive.setX()));
+    Trigger climbUp = m_driverController.rightBumper();
+    climbUp.onTrue(climbTrain.incrementPosition());
+
+    Trigger climbDown = m_driverController.rightTrigger();
+    climbDown.onTrue(climbTrain.decrementPosition());
+
+    Trigger climbFullUp = m_driverController.leftTrigger();
+    climbFullUp.onTrue(climbTrain.setPosition(515));
   }
 
   /**
