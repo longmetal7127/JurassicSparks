@@ -1,19 +1,20 @@
 package frc.robot.subsystems;
 
+import com.revrobotics.CANSparkLowLevel.MotorType;
+import com.revrobotics.CANSparkMax;
+/* 
+import com.revrobotics.SparkPIDController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import static edu.wpi.first.units.Units.*;
 
 import com.revrobotics.CANSparkBase.ControlType;
-import com.revrobotics.CANSparkLowLevel.MotorType;
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.SparkPIDController;
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+*/
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-//import frc.robot.Constants;
 import frc.robot.Constants.IntakeConstants;
 import monologue.Annotations.Log;
 import monologue.Logged;
@@ -27,11 +28,11 @@ public class IntakeTrain extends SubsystemBase implements Logged {
 
   // private SparkPIDController leftPID = IntakeMotorLeft.getPIDController();
   private SysIdRoutine sysIdRoutine;
-  private SimpleMotorFeedforward feedForward = new SimpleMotorFeedforward(
+  /*private SimpleMotorFeedforward feedForward = new SimpleMotorFeedforward(
     0.12128,
     0.00012349,
     0.0010215
-  );
+  );*/
   private DigitalInput beamBreak = new DigitalInput(0);
   public final Trigger hasNote = new Trigger(this::hasNote);
   public final Trigger noNote = new Trigger(beamBreak::get);

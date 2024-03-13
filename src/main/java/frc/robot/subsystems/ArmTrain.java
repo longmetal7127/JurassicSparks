@@ -12,7 +12,6 @@ import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Constants.ArmConstants;
@@ -42,7 +41,6 @@ public class ArmTrain extends SubsystemBase implements Logged {
   private double pos = 175;
 
   private SysIdRoutine sysIdRoutine;
-  private double[] positions = { 13 };
   private final TrapezoidProfile m_profile = new TrapezoidProfile(
     new TrapezoidProfile.Constraints(1.75, 0.75)
   );
