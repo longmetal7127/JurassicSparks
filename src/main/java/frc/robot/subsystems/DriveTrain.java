@@ -1,6 +1,6 @@
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.Feet;
+import static edu.wpi.first.units.Units.*;
 import static edu.wpi.first.units.Units.Meters;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -119,7 +119,7 @@ public class DriveTrain extends SubsystemBase implements Logged {
       );
     cam = new PhotonCamera("Arducam_OV2311_USB_Camera");
     Transform3d robotToCam = new Transform3d(
-      new Translation3d(0.0889, -0.3302, 0.508),
+      new Translation3d(-0.0889, -0.3302, 0.508),
       new Rotation3d(0, Math.toRadians(180 - 13), Math.toRadians(0))
     );
 
@@ -428,7 +428,7 @@ public class DriveTrain extends SubsystemBase implements Logged {
     Pose3d speakerpos = new Pose3d(
       Meters.convertFrom(53.425351, Feet),
       Meters.convertFrom(18.16625, Feet),
-      0,
+      Meters.convertFrom(82, Inches),
       new Rotation3d()
     );
     Pose3d body = new Pose3d(

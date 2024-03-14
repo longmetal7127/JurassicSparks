@@ -41,7 +41,9 @@ public class SpeakerAim extends Command  {
   }
 
   private double distance;
-
+  public double distanceToAngle(double dist) {
+    return (-1.0105 * Math.pow(dist, 5)) +(18.8844 * Math.pow(dist, 4)) + (-135.5536 * Math.pow(dist, 3)) + (459.2128 * Math.pow(dist, 2)) + (-706.9145 * dist) + 572.6579 ;
+  }
   @Override
   public void initialize() {
     turnController.reset();
@@ -62,7 +64,7 @@ public class SpeakerAim extends Command  {
 
   @Override
   public void execute() {
-    m_arm.setAngle(map.get(distance));
+    m_arm.setAngle(distanceToAngle(distance));
   }
 
   @Override
