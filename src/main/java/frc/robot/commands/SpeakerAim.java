@@ -44,6 +44,11 @@ public class SpeakerAim extends Command  {
   public double distanceToAngle(double dist) {
     return (-1.0105 * Math.pow(dist, 5)) +(18.8844 * Math.pow(dist, 4)) + (-135.5536 * Math.pow(dist, 3)) + (459.2128 * Math.pow(dist, 2)) + (-706.9145 * dist) + 572.6579 ;
   }
+
+  public double findNeededYaw(Pose3d r_body, Pose3d s_body) {
+    return (Math.toDegrees(Math.atan((r_body.getY()-s_body.getY())/(r_body.getX()-s_body.getX())))+180);
+  }
+
   @Override
   public void initialize() {
     turnController.reset();
@@ -65,6 +70,7 @@ public class SpeakerAim extends Command  {
   @Override
   public void execute() {
     m_arm.setAngle(distanceToAngle(distance));
+    
   }
 
   @Override
