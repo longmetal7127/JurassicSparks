@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import java.util.Set;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.MathUtil;
@@ -11,7 +13,10 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.ProxyCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -20,6 +25,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.SpeakerAim;
+import frc.robot.commands.TurnToAngle;
 import frc.robot.subsystems.ArmTrain;
 import frc.robot.subsystems.ClimbTrain;
 import frc.robot.subsystems.DriveTrain;
@@ -45,24 +51,25 @@ public class RobotContainer implements Logged {
   private DriveTrain drive;
 
   public static CommandJoystick joystick = new CommandJoystick(
-    Constants.OperatorConstants.kDriverJoystickPort
-  );
+      Constants.OperatorConstants.kDriverJoystickPort);
 
-  private static CommandXboxController m_driverController =
-    new CommandXboxController(OperatorConstants.kDriverControllerPort);
+  private static CommandXboxController m_driverController = new CommandXboxController(
+      OperatorConstants.kDriverControllerPort);
   private final ArmTrain armTrain = new ArmTrain();
   private final IntakeTrain intakeTrain = new IntakeTrain();
   private final ShooterTrain shooterTrain = new ShooterTrain();
   private final ClimbTrain climbTrain = new ClimbTrain();
   private final LightTrain lightTrain = new LightTrain();
   private Command shootCommand = new SequentialCommandGroup(
-    shooterTrain.setSpeed(-2000),
-    new WaitCommand(1),
-    intakeTrain.setSpeed(-0.7),
-    new WaitCommand(0.3),
-    intakeTrain.setSpeed(0),
-    shooterTrain.setSpeed(0)
-  );
+      intakeTrain.setSpeed(0.4),
+      new WaitCommand(100).until(intakeTrain.noNote),
+      intakeTrain.setSpeed(0),
+      shooterTrain.setSpeed(-2000),
+      new WaitCommand(1),
+      intakeTrain.setSpeed(-0.7),
+      new WaitCommand(0.3),
+      intakeTrain.setSpeed(0),
+      shooterTrain.setSpeed(0));
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
@@ -70,55 +77,52 @@ public class RobotContainer implements Logged {
 
   public RobotContainer() {
     NamedCommands.registerCommand(
-      "shootPos",
-      armTrain.setPosition(175 + 11 + 8)
-    );
+        "shootPos",
+        armTrain.setPosition(175 + 11 + 8));
     NamedCommands.registerCommand(
-      "sndShootPos",
-      armTrain.setPosition(175 + 11 + 23)
-    );
+        "sndShootPos",
+        armTrain.setPosition(175 + 11 + 23));
 
     NamedCommands.registerCommand(
-      "trdShootPos",
-      armTrain.setPosition(175 + 11 + 24)
-    );
+        "trdShootPos",
+        armTrain.setPosition(175 + 11 + 24));
+    NamedCommands.registerCommand(
+        "farKindaShootPos",
+        armTrain.setPosition(219));
 
     NamedCommands.registerCommand("shoot", shootCommand);
     NamedCommands.registerCommand(
-      "intake",
-      new SequentialCommandGroup(
-        armTrain.setPosition(175 + .5),
-        intakeTrain.setSpeed(-5000)
-      )
-    );
+        "intake",
+        new ParallelCommandGroup(
+            armTrain.setPosition(175 + .5),
+            intakeTrain.setSpeed(-5000)));
     NamedCommands.registerCommand("intakeOff", intakeTrain.setSpeed(0));
 
     drive = new DriveTrain(navx);
 
     configureBindings();
     drive.setDefaultCommand(
-      new RunCommand(
-        () -> {
-          double multiplier = (((joystick.getThrottle() * -1) + 1) / 2); // turbo mode
-          double z = RobotContainer.joystick.getZ() * -.9;
+        new RunCommand(
+            () -> {
+              double multiplier = (((joystick.getThrottle() * -1) + 1) / 2); // turbo mode
+              double z = RobotContainer.joystick.getZ() * -.9;
 
-          drive.drive(
-            MathUtil.applyDeadband(
-              joystick.getY() * -multiplier,
-              OperatorConstants.kDriveDeadband
-            ),
-            MathUtil.applyDeadband(
-              joystick.getX() * -multiplier,
-              OperatorConstants.kDriveDeadband
-            ),
-            MathUtil.applyDeadband(z, OperatorConstants.kDriveDeadband),
-            true,
-            true
-          );
-        },
-        drive
-      )
-    );
+              drive.drive(
+                  MathUtil.applyDeadband(
+                      joystick.getY() * -multiplier,
+                      OperatorConstants.kDriveDeadband),
+                  MathUtil.applyDeadband(
+                      joystick.getX() * -multiplier,
+                      OperatorConstants.kDriveDeadband),
+                  MathUtil.applyDeadband(z, OperatorConstants.kDriveDeadband),
+                  true,
+                  false);
+            },
+            drive));
+    NamedCommands.registerCommand("autoAim", new ParallelCommandGroup(getSpekAim(), new DeferredCommand(() -> {
+      return new TurnToAngle(drive.findNeededYaw(), drive);
+    }, Set.of(drive))));
+
     autoChooser = AutoBuilder.buildAutoChooser();
 
     // Another option that allows you to specify the default auto by its name
@@ -126,6 +130,7 @@ public class RobotContainer implements Logged {
 
     SmartDashboard.putData("Auto Chooser", autoChooser);
     NamedCommands.registerCommand("wheelsX", Commands.run(() -> drive.setX()));
+
   }
 
   /**
@@ -152,10 +157,9 @@ public class RobotContainer implements Logged {
 
     Trigger zeroYaw = joystick.trigger();
     zeroYaw.onTrue(
-      new InstantCommand(() -> {
-        navx.ahrs.zeroYaw();
-      })
-    );
+        new InstantCommand(() -> {
+          navx.ahrs.zeroYaw();
+        }));
 
     Trigger fineMoveUp = m_driverController.a();
     fineMoveUp.onTrue(armTrain.incrementPosition());
@@ -190,8 +194,7 @@ public class RobotContainer implements Logged {
 
     Trigger intakePosition = m_driverController.povDown();
     intakePosition.whileTrue(
-      new SequentialCommandGroup(armTrain.setPosition(175 + .5))
-    );
+        new SequentialCommandGroup(armTrain.setPosition(175 + .5)));
 
     Trigger startIntake = m_driverController.povDown().and(intakeTrain.noNote);
     startIntake.onTrue(intakeTrain.setSpeed(-5000));
@@ -201,7 +204,10 @@ public class RobotContainer implements Logged {
     ampPosition.onTrue(armTrain.setPosition(273));
 
     Trigger autoAim = m_driverController.leftBumper();
-    autoAim.onTrue(getSpekAim());
+    autoAim.onTrue(
+        new ParallelCommandGroup(getSpekAim(), new DeferredCommand(() -> {
+          return new TurnToAngle(drive.findNeededYaw(), drive);
+        }, Set.of(drive))));
 
     Trigger climbUp = m_driverController.rightBumper();
     climbUp.onTrue(climbTrain.incrementPosition());

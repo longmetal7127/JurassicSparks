@@ -6,6 +6,8 @@ import com.revrobotics.CANSparkBase;
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkPIDController;
+
+import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 //import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -26,7 +28,8 @@ public class ClimbTrain extends SubsystemBase implements Logged {
   private SparkPIDController m_leftPID;
   private SparkPIDController m_rightPID;
   //private SysIdRoutine sysIdRoutine;
-
+  private Servo lServo = new Servo(1);
+  private Servo rServo = new Servo(2);
   @Log.NT
   private double pos = 0;
 
@@ -40,17 +43,18 @@ public class ClimbTrain extends SubsystemBase implements Logged {
     m_leftPID.setI(ClimbConstants.kTurningI);
     m_leftPID.setD(ClimbConstants.kTurningD);
     m_leftPID.setFF(ClimbConstants.kTurningFF);
-    m_leftPID.setOutputRange(-0.5, 0.5);
+    m_leftPID.setOutputRange(-0.5, 1);
 
     m_rightPID.setP(ClimbConstants.kTurningP);
     m_rightPID.setI(ClimbConstants.kTurningI);
     m_rightPID.setD(ClimbConstants.kTurningD);
     m_rightPID.setFF(ClimbConstants.kTurningFF);
-    m_rightPID.setOutputRange(-0.5, 0.5);
+    m_rightPID.setOutputRange(-1, 1);
 
     left.setSoftLimit(CANSparkBase.SoftLimitDirection.kReverse, 0);
     right.setSoftLimit(CANSparkBase.SoftLimitDirection.kReverse, 0);
-
+    lServo.setAngle(90);
+    rServo.setAngle(90);
     /*sysIdRoutine =
       new SysIdRoutine(
         new SysIdRoutine.Config(),
@@ -77,17 +81,17 @@ public class ClimbTrain extends SubsystemBase implements Logged {
 
   public Command incrementPosition() {
     return this.runOnce(() -> {
-        m_leftPID.setReference(this.pos + 10, ControlType.kPosition);
-        m_rightPID.setReference(this.pos + 10, ControlType.kPosition);
+        m_leftPID.setReference(this.pos + 5, ControlType.kPosition);
+        m_rightPID.setReference(-(this.pos + 5), ControlType.kPosition);
 
-        this.pos += 10;
+        this.pos += 5;
       });
   }
 
   public Command decrementPosition() {
     return this.runOnce(() -> {
         m_leftPID.setReference(this.pos - 5, ControlType.kPosition);
-        m_rightPID.setReference(this.pos - 5, ControlType.kPosition);
+        m_rightPID.setReference(-(this.pos - 5), ControlType.kPosition);
 
         this.pos -= 5;
       });

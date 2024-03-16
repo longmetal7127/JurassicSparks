@@ -42,7 +42,7 @@ public class ArmTrain extends SubsystemBase implements Logged {
 
   private SysIdRoutine sysIdRoutine;
   private final TrapezoidProfile m_profile = new TrapezoidProfile(
-    new TrapezoidProfile.Constraints(1.75, 0.75)
+    new TrapezoidProfile.Constraints(2.5, 1.5)
   );
   private TrapezoidProfile.State m_goal = new TrapezoidProfile.State();
   private TrapezoidProfile.State m_setpoint = new TrapezoidProfile.State();
