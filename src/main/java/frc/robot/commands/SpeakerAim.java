@@ -8,6 +8,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.ArmTrain;
 import frc.robot.subsystems.DriveTrain;
@@ -50,7 +51,7 @@ public class SpeakerAim extends Command  {
   public void initialize() {
     turnController.reset();
     Pose3d speakerpos = new Pose3d(
-      Meters.convertFrom(53.425351, Feet),
+      ((DriverStation.getAlliance().get() == DriverStation.Alliance.Red) ? (Meters.convertFrom(53.425351, Feet)) : (0.2570046168)),
       Meters.convertFrom(18.16625, Feet),
       Meters.convertFrom(82, Inches),
       new Rotation3d()
