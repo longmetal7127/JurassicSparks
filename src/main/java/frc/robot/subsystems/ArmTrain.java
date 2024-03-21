@@ -21,29 +21,25 @@ import monologue.Logged;
 public class ArmTrain extends SubsystemBase implements Logged {
 
   public CANSparkMax left = new CANSparkMax(
-    ArmConstants.kLeftMotorCanId,
-    com.revrobotics.CANSparkLowLevel.MotorType.kBrushless
-  );
+      ArmConstants.kLeftMotorCanId,
+      com.revrobotics.CANSparkLowLevel.MotorType.kBrushless);
   public CANSparkMax right = new CANSparkMax(
-    ArmConstants.kRightMotorCanId,
-    com.revrobotics.CANSparkLowLevel.MotorType.kBrushless
-  );
+      ArmConstants.kRightMotorCanId,
+      com.revrobotics.CANSparkLowLevel.MotorType.kBrushless);
   private AbsoluteEncoder m_turningEncoder;
   private SparkPIDController m_leftPID;
   private ArmFeedforward feedforward = new ArmFeedforward(
-    0.34728,
-    0.60802,
-    4.7463E-06,
-    9.8036E-07
-  );
+      0.34728,
+      0.60802,
+      4.7463E-06,
+      9.8036E-07);
 
   @Log.NT
-  private double pos = 175;
+  private double pos = 176;
 
   private SysIdRoutine sysIdRoutine;
   private final TrapezoidProfile m_profile = new TrapezoidProfile(
-    new TrapezoidProfile.Constraints(2.5, 1.5)
-  );
+      new TrapezoidProfile.Constraints(2.5, .95));
   private TrapezoidProfile.State m_goal = new TrapezoidProfile.State();
   private TrapezoidProfile.State m_setpoint = new TrapezoidProfile.State();
   private double kDt = 0.02; // loop time in seconds
@@ -55,18 +51,15 @@ public class ArmTrain extends SubsystemBase implements Logged {
     right.setSmartCurrentLimit(60);
     left.setSoftLimit(SoftLimitDirection.kForward, 120);
     left.setSoftLimit(SoftLimitDirection.kReverse, 1);
-    m_turningEncoder =
-      left.getAbsoluteEncoder(SparkAbsoluteEncoder.Type.kDutyCycle);
+    m_turningEncoder = left.getAbsoluteEncoder(SparkAbsoluteEncoder.Type.kDutyCycle);
     m_turningEncoder.setInverted(true);
     m_leftPID = left.getPIDController();
     right.follow(left, true);
     m_turningEncoder.setPositionConversionFactor(
-      ArmConstants.kTurningEncoderPositionFactor
-    );
+        ArmConstants.kTurningEncoderPositionFactor);
 
     m_turningEncoder.setVelocityConversionFactor(
-      ArmConstants.kTurningEncoderPositionFactor
-    );
+        ArmConstants.kTurningEncoderPositionFactor);
 
     m_leftPID.setFeedbackDevice(m_turningEncoder);
 
@@ -75,15 +68,12 @@ public class ArmTrain extends SubsystemBase implements Logged {
     m_leftPID.setD(ArmConstants.kTurningD);
     m_leftPID.setFF(ArmConstants.kTurningFF);
     m_leftPID.setOutputRange(-1, 1);
-    sysIdRoutine =
-      new SysIdRoutine(
+    sysIdRoutine = new SysIdRoutine(
         new SysIdRoutine.Config(),
         new SysIdRoutine.Mechanism(
-          voltage -> left.setVoltage(voltage.in(Volts)),
-          null, // No log consumer, since data is recorded by URCL
-          this
-        )
-      );
+            voltage -> left.setVoltage(voltage.in(Volts)),
+            null, // No log consumer, since data is recorded by URCL
+            this));
     m_leftPID.setPositionPIDWrappingEnabled(false);
     // m_leftPID.setPositionPIDWrappingMaxInput(120);
   }
@@ -93,17 +83,17 @@ public class ArmTrain extends SubsystemBase implements Logged {
     m_setpoint = m_profile.calculate(kDt, m_setpoint, m_goal);
 
     m_leftPID.setReference(
-      pos,
-      ControlType.kPosition,
-      0,
-      feedforward.calculate(Math.toRadians(pos), m_setpoint.velocity)
-    );
+        pos,
+        ControlType.kPosition,
+        0,
+        feedforward.calculate(Math.toRadians(pos), m_setpoint.velocity));
+
   }
 
   public Command setPosition(double pos) {
     return this.runOnce(() -> {
-        this.pos = pos;
-      });
+      setAngle(pos);
+    });
   }
 
   public void setAngle(double pos) {
@@ -114,47 +104,47 @@ public class ArmTrain extends SubsystemBase implements Logged {
 
   public Command incrementPosition() {
     return this.runOnce(() -> {
-        m_leftPID.setReference(this.pos + 1, ControlType.kPosition);
-        this.pos += 1;
-      });
+      m_leftPID.setReference(this.pos + 1, ControlType.kPosition);
+      this.pos += 1;
+    });
   }
 
   public Command decrementPosition() {
     return this.runOnce(() -> {
-        m_leftPID.setReference(this.pos - 1, ControlType.kPosition);
-        this.pos -= 1;
-      });
+      m_leftPID.setReference(this.pos - 1, ControlType.kPosition);
+      this.pos -= 1;
+    });
   }
 
   public Command quasistaticForward() {
     return sysIdRoutine
-      .quasistatic(Direction.kForward)
-      .until(() -> {
-        return m_turningEncoder.getPosition() >= 70;
-      });
+        .quasistatic(Direction.kForward)
+        .until(() -> {
+          return m_turningEncoder.getPosition() >= 280;
+        });
   }
 
   public Command quasistaticBackward() {
     return sysIdRoutine
-      .quasistatic(Direction.kReverse)
-      .until(() -> {
-        return m_turningEncoder.getPosition() <= 10;
-      });
+        .quasistatic(Direction.kReverse)
+        .until(() -> {
+          return m_turningEncoder.getPosition() <= 172;
+        });
   }
 
   public Command dynamicForward() {
     return sysIdRoutine
-      .dynamic(Direction.kForward)
-      .until(() -> {
-        return m_turningEncoder.getPosition() >= 70;
-      });
+        .dynamic(Direction.kForward)
+        .until(() -> {
+          return m_turningEncoder.getPosition() >= 280;
+        });
   }
 
   public Command dynamicBackward() {
     return sysIdRoutine
-      .dynamic(Direction.kReverse)
-      .until(() -> {
-        return m_turningEncoder.getPosition() <= 10;
-      });
+        .dynamic(Direction.kReverse)
+        .until(() -> {
+          return m_turningEncoder.getPosition() <= 172;
+        });
   }
 }

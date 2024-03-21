@@ -66,7 +66,7 @@ public class SpeakerAim extends Command  {
 
   @Override
   public void execute() {
-    m_arm.setAngle(distanceToAngle(distance));
+    m_arm.setAngle(Math.max(distanceToAngle(distance), 175));
     
   }
 

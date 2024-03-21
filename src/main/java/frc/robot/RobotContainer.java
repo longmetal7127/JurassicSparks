@@ -151,6 +151,21 @@ public class RobotContainer implements Logged {
     return new SpeakerAim(drive, armTrain, false);
   }
 
+  private void configureBsindings() {
+    Trigger a = m_driverController.a();
+    a.onTrue(armTrain.quasistaticForward());
+
+    Trigger b = m_driverController.b();
+    b.onTrue(armTrain.quasistaticBackward());
+
+    Trigger x = m_driverController.x();
+    x.onTrue(armTrain.dynamicForward());
+
+    Trigger y = m_driverController.y();
+    y.onTrue(armTrain.dynamicBackward());
+
+  }
+
   private void configureBindings() {
     intakeTrain.hasNote.onFalse(lightTrain.setColor(0, 0, 0));
     intakeTrain.hasNote.onTrue(lightTrain.setColor(255, 0, 0));
@@ -169,14 +184,6 @@ public class RobotContainer implements Logged {
 
     // Sysid
     /*
-     * Trigger a = m_driverController.a();
-     * a.onTrue(intakeTrain.quasistaticForward());
-     * Trigger b = m_driverController.b();
-     * b.onTrue(intakeTrain.quasistaticBackward());
-     * Trigger x = m_driverController.x();
-     * x.onTrue(intakeTrain.dynamicForward());
-     * Trigger y = m_driverController.y();
-     * y.onTrue(intakeTrain.dynamicBackward());
      */
     Trigger manualIntake = m_driverController.x();
     manualIntake.whileTrue(intakeTrain.setSpeed(-5000));
@@ -194,7 +201,7 @@ public class RobotContainer implements Logged {
 
     Trigger intakePosition = m_driverController.povDown();
     intakePosition.whileTrue(
-        new SequentialCommandGroup(armTrain.setPosition(175 + .5)));
+        new SequentialCommandGroup(armTrain.setPosition(175 + 1)));
 
     Trigger startIntake = m_driverController.povDown().and(intakeTrain.noNote);
     startIntake.onTrue(intakeTrain.setSpeed(-5000));
