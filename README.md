@@ -1,9 +1,5 @@
-# The Repository for the 2024 Longmetal Robot
+# Jurassic Sparks
 
-something something interesting
-
-something something swerve
-
-something something plans
-
-w specificity
+- the 2024 longmetal robot
+- cool robot
+-commit
