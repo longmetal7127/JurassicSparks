@@ -40,10 +40,10 @@ public final class Constants {
       );
 
     // Angular offsets of the modules relative to the chassis in radians
-    public static final double kFrontLeftChassisAngularOffset = -Math.PI / 2;
-    public static final double kFrontRightChassisAngularOffset = 0;
-    public static final double kBackLeftChassisAngularOffset = Math.PI;
-    public static final double kBackRightChassisAngularOffset = Math.PI / 2;
+    public static final double kFrontLeftChassisAngularOffset = -Math.PI / 2 + Math.toRadians(90); //radian addition due to incorrectly callibrated wheels
+    public static final double kFrontRightChassisAngularOffset = 0 + Math.toRadians(90);
+    public static final double kBackLeftChassisAngularOffset = Math.PI + Math.toRadians(90);
+    public static final double kBackRightChassisAngularOffset = Math.PI / 2 + Math.toRadians(90);
 
     // SPARK MAX CAN IDs
     public static final int kFrontLeftDrivingCanId = 2;
@@ -64,9 +64,9 @@ public final class Constants {
     public static final int kLeftMotorCanId = 13;
     public static final int kRightMotorCanId = 14;
 
-    public static final double kTurningP = 0.02;
+    public static final double kTurningP = 0.023; // source: GrahamId
     public static final double kTurningI = 0;
-    public static final double kTurningD = 0.025898;
+    public static final double kTurningD = 0.05;//0.025898;
     public static final double kTurningFF = 0;
     public static final double kTurningMinOutput = -1;
     public static final double kTurningMaxOutput = 1;
@@ -119,6 +119,8 @@ public final class Constants {
     public static final double kDrivingMotorFreeSpeedRps =
       NeoMotorConstants.kFreeSpeedRpm / 60;
     public static final double kWheelDiameterMeters = 0.0762;
+
+    public static final double kWheelRadiusMeters = kWheelDiameterMeters / 2;
     public static final double kWheelCircumferenceMeters =
       kWheelDiameterMeters * Math.PI;
     // 45 teeth on the wheel's bevel gear, 22 teeth on the first-stage spur gear, 15

@@ -9,6 +9,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkAbsoluteEncoder;
 import com.revrobotics.SparkPIDController;
 import edu.wpi.first.math.controller.ArmFeedforward;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -39,7 +40,7 @@ public class ArmTrain extends SubsystemBase implements Logged {
 
   private SysIdRoutine sysIdRoutine;
   private final TrapezoidProfile m_profile = new TrapezoidProfile(
-      new TrapezoidProfile.Constraints(2.5, .95));
+      new TrapezoidProfile.Constraints(2.5, 5));
   private TrapezoidProfile.State m_goal = new TrapezoidProfile.State();
   private TrapezoidProfile.State m_setpoint = new TrapezoidProfile.State();
   private double kDt = 0.02; // loop time in seconds
@@ -47,8 +48,8 @@ public class ArmTrain extends SubsystemBase implements Logged {
   public ArmTrain() {
     left.restoreFactoryDefaults();
 
-    left.setSmartCurrentLimit(60);
-    right.setSmartCurrentLimit(60);
+    left.setSmartCurrentLimit(22);
+    right.setSmartCurrentLimit(22);
     left.setSoftLimit(SoftLimitDirection.kForward, 120);
     left.setSoftLimit(SoftLimitDirection.kReverse, 1);
     m_turningEncoder = left.getAbsoluteEncoder(SparkAbsoluteEncoder.Type.kDutyCycle);
@@ -86,8 +87,14 @@ public class ArmTrain extends SubsystemBase implements Logged {
         pos,
         ControlType.kPosition,
         0,
-        feedforward.calculate(Math.toRadians(pos), m_setpoint.velocity));
+        feedforward.calculate(Math.toRadians(pos + 6), m_setpoint.velocity) / 12
+      );
 
+  }
+
+  @Log.NT
+  public double getPositionCur() {
+    return m_turningEncoder.getPosition();
   }
 
   public Command setPosition(double pos) {
@@ -97,6 +104,7 @@ public class ArmTrain extends SubsystemBase implements Logged {
   }
 
   public void setAngle(double pos) {
+    pos -= 2;
     m_leftPID.setReference(pos, ControlType.kPosition);
     this.pos = pos;
     m_goal = new TrapezoidProfile.State(pos, 0);

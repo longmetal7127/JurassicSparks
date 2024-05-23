@@ -24,6 +24,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.WPIUtilJNI;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -436,11 +437,14 @@ public class DriveTrain extends SubsystemBase implements Logged {
   }
 
   public double findNeededYaw() {
+     double fieldLength = Units.inchesToMeters(651.223);
     Pose3d s_body = new Pose3d(
-        Meters.convertFrom(53.425351, Feet), // +(? -54.268542 : 0)
-        Meters.convertFrom(18.16625, Feet),
-        Meters.convertFrom(82, Inches),
-        new Rotation3d());
+      ((DriverStation.getAlliance().get() == DriverStation.Alliance.Red) ? (Meters.convertFrom(53.425351, Feet)) : (fieldLength - Meters.convertFrom(53.425351, Feet))),
+      Meters.convertFrom(18.16625, Feet),
+      Meters.convertFrom(82, Inches),
+      new Rotation3d()
+    );
+
     Pose3d r_body = new Pose3d(
         this.getPose().getX(),
         this.getPose().getY(),

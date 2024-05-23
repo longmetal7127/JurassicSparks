@@ -27,7 +27,6 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.SpeakerAim;
 import frc.robot.commands.TurnToAngle;
 import frc.robot.subsystems.ArmTrain;
-import frc.robot.subsystems.ClimbTrain;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.IntakeTrain;
 import frc.robot.subsystems.LightTrain;
@@ -58,7 +57,6 @@ public class RobotContainer implements Logged {
   private final ArmTrain armTrain = new ArmTrain();
   private final IntakeTrain intakeTrain = new IntakeTrain();
   private final ShooterTrain shooterTrain = new ShooterTrain();
-  private final ClimbTrain climbTrain = new ClimbTrain();
   private final LightTrain lightTrain = new LightTrain();
   private Command shootCommand = new SequentialCommandGroup(
       intakeTrain.setSpeed(0.4),
@@ -92,10 +90,12 @@ public class RobotContainer implements Logged {
 
     NamedCommands.registerCommand("shoot", shootCommand);
     NamedCommands.registerCommand(
-        "intake",
-        new ParallelCommandGroup(
-            armTrain.setPosition(175 + .5),
-            intakeTrain.setSpeed(-5000)));
+      "intake",
+      new ParallelCommandGroup(
+        armTrain.setPosition(175 + .5),
+        intakeTrain.setSpeed(-5000)
+      )
+    );
     NamedCommands.registerCommand("intakeOff", intakeTrain.setSpeed(0));
 
     drive = new DriveTrain(navx);
@@ -186,7 +186,7 @@ public class RobotContainer implements Logged {
     /*
      */
     Trigger manualIntake = m_driverController.x();
-    manualIntake.whileTrue(intakeTrain.setSpeed(-5000));
+    manualIntake.whileTrue(intakeTrain.setSpeed(-1));
     manualIntake.onFalse(intakeTrain.setSpeed(0));
 
     Trigger shoot = m_driverController.y();
@@ -201,10 +201,10 @@ public class RobotContainer implements Logged {
 
     Trigger intakePosition = m_driverController.povDown();
     intakePosition.whileTrue(
-        new SequentialCommandGroup(armTrain.setPosition(175 + 1)));
+        new SequentialCommandGroup(armTrain.setPosition(175 + 1.5)));
 
     Trigger startIntake = m_driverController.povDown().and(intakeTrain.noNote);
-    startIntake.onTrue(intakeTrain.setSpeed(-5000));
+    startIntake.onTrue(intakeTrain.setSpeed(-1));
     startIntake.onFalse(intakeTrain.setSpeed(0));
 
     Trigger ampPosition = m_driverController.povUp();
@@ -216,14 +216,11 @@ public class RobotContainer implements Logged {
           return new TurnToAngle(drive.findNeededYaw(), drive);
         }, Set.of(drive))));
 
-    Trigger climbUp = m_driverController.rightBumper();
-    climbUp.onTrue(climbTrain.incrementPosition());
+    Trigger intakeOut = m_driverController.rightBumper();
+    intakeOut.onTrue(intakeTrain.setSpeed(1));
+        intakeOut.onFalse(intakeTrain.setSpeed(0));
 
-    Trigger climbDown = m_driverController.rightTrigger();
-    climbDown.onTrue(climbTrain.decrementPosition());
 
-    Trigger climbFullUp = m_driverController.leftTrigger();
-    climbFullUp.onTrue(climbTrain.setPosition(515));
   }
 
   /**

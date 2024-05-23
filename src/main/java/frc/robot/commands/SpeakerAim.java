@@ -8,6 +8,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.ArmTrain;
@@ -23,7 +24,7 @@ public class SpeakerAim extends Command  {
 
   static final double kP = 0.03;
   static final double kI = 0.00;
-  static final double kD = 0.00;
+  static final double kD = 0.001;
   static final double kF = 0.00;
 
   static final double kToleranceDegrees = 2.0f;
@@ -50,8 +51,9 @@ public class SpeakerAim extends Command  {
   @Override
   public void initialize() {
     turnController.reset();
+    double fieldLength = Units.inchesToMeters(651.223);
     Pose3d speakerpos = new Pose3d(
-      ((DriverStation.getAlliance().get() == DriverStation.Alliance.Red) ? (Meters.convertFrom(53.425351, Feet)) : (0.2570046168)),
+      ((DriverStation.getAlliance().get() == DriverStation.Alliance.Red) ? (Meters.convertFrom(53.425351, Feet)) : (fieldLength - Meters.convertFrom(53.425351, Feet))),
       Meters.convertFrom(18.16625, Feet),
       Meters.convertFrom(82, Inches),
       new Rotation3d()
